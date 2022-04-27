@@ -81,11 +81,11 @@ car1Sprite.on("pointerdown", function() {
 
 var speed = 0;  
 const acceleration = 0.2;
-const maxspeed = 6;
+const maxspeed = 10;
 const maneuverability = 0.009;
 var rotation = 0;
 var max_rotation_speed = 0.009;
-const friction = 0.95;
+const friction = 0.99;
 
 // Single keys
 
