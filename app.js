@@ -128,6 +128,9 @@ document.addEventListener('keydown', (event) => {
 
 });
 
+
+let paused = false;
+
 document.addEventListener('keyup', (event) => {
     if (event.key == "ArrowUp") {
         forwardDown = 0;
@@ -139,11 +142,16 @@ document.addEventListener('keyup', (event) => {
 
     if (event.key == "ArrowDown") {
         forwardDown = 0;
-       }
+    }
     
-       if (event.key == "ArrowLeft") {
+    if (event.key == "ArrowLeft") {
         rightDown = 0;
-       }
+    }
+
+    if (event.key == "p") {
+        paused = true;
+        // PIXI.shared.ticker.stop();
+    }
  });
 
 
@@ -174,3 +182,15 @@ let vShader;
 let fShader;
 let uniforms;
 const filter = new PIXI.Filter(vShader, fShader, uniforms);
+
+
+// Path interpolation
+// const points = [new PIXI.Point(200, 200), new PIXI.Point(500, 50), new PIXI.Point(700, 300), new PIXI.Point(600, 450), new PIXI.Point(350, 300)];
+// let circle = new PIXI.Graphics().beginFill(0x000000).drawCircle(0, 0, 5);
+// app.stage.addChild(circle);
+
+// let interpolation = new PathInterpol(points, circle, 0.1);
+// interpolation.showLine(true);
+// interpolation.showInterpolatedPoints(true);
+// interpolation.showPoints(true);
+// interpolation.startAnimation(1);
