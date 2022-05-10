@@ -52,58 +52,10 @@ app.stage.addChild(BackgroundSprite);
 BackgroundSprite.width = window.innerWidth;
 BackgroundSprite.height = window.innerHeight;
 
-// Car
-const url1 = "./images/car1.png"
-const car1Sprite = new PIXI.Sprite.from(url1);
-app.stage.addChild(car1Sprite);
-car1Sprite.anchor.set(1,0.5)
 
-// car1Sprite.width = 500;
-// car1Sprite.height = 200;
-car1Sprite.scale.set(0.5);
-car1Sprite.position.set(100, window.innerHeight/2);
-// car1Sprite.rotation = Math.PI/2;
+// Keys
 
-// Interactive
-let buttonUp = 1;
-let buttonRight = 1;
-
-car1Sprite.interactive = true;
-car1Sprite.buttonMode = true;
-car1Sprite.on("pointerdown", function() {
-    car1Sprite.scale.x += 0.1;
-    car1Sprite.scale.y += 0.1;
-    if (buttonUp === 1) {
-        car1Sprite.x = car1Sprite.x + distance * Math.cos(car1Sprite.rotation);
-        car1Sprite.y = car1Sprite.y + distance * Math.sin(car1Sprite.rotation);
-    }
-});
-
-var speed = 0;  
-const acceleration = 0.2;
-const maxspeed = 10;
-const maneuverability = 0.009;
-var rotation = 0;
-var max_rotation_speed = 0.009;
-const friction = 0.99;
-
-// Single keys
-
-document.addEventListener("keydown", function(e) {
-
-    if(e.key === "ArrowUp" && speed <= maxspeed){
-        speed += acceleration;
-    } ;
-        
-    if(e.key === "ArrowDown" && speed >= -maxspeed)  {
-        speed -= acceleration;
-    } ;
-
-});
-
-
-// Multiple keys
-
+let forward = 0.0;
 let forwardDown = 0.0;
 let rightDown = 0.0;
 let Ctrl = 0.0
@@ -124,6 +76,13 @@ document.addEventListener('keydown', (event) => {
    if (event.key == "ArrowLeft") {
     rightDown = -1;
    }
+   if(event.key === "ArrowUp" && player.vel_x <= player.max_velocity){
+    forward = 1;
+    } ;
+    
+    if(event.key === "ArrowDown" && player.vel_x >= -player.max_velocity)  {
+    forward = -1;
+    } ;
 
 
 });
@@ -152,45 +111,253 @@ document.addEventListener('keyup', (event) => {
         paused = true;
         // PIXI.shared.ticker.stop();
     }
+       
+    
+    if(event.key === "ArrowUp"){
+        forward = 0;
+    } ;
+        
+    if(event.key === "ArrowDown")  {
+        forward = 0;
+    } ;
  });
 
+//  Car class //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var max_rotation_speed = 0.1;
+
+ class Car {
+    constructor (url, mass, max_torque, max_force, max_velocity) {
+        this.sprite = new PIXI.Sprite.from(url);
+        this.sprite.scale.set(0.5, 0.5);
+        this.sprite.anchor.set(0.5, 0.5);
+        this.mass = mass;
+        this.vel_x = 0;
+        this.vel_y = 0;
+        this.ang_vel = 0;
+        this.max_torque = max_torque;
+        this.max_force = max_force;
+        this.max_velocity = max_velocity;
+        this.line_v = new Graphics();
+    }
+
+    spawn(x, y) {
+        console.log(this.sprite.position);
+        app.stage.addChild(this.sprite);
+        this.sprite.x = x;
+        this.sprite.y = y;
+    }
+
+    readInput(right, up) {
+        
+    }
+
+    update(delta) {
+        this.sprite.x += this.vel_x * delta;
+        this.sprite.y += this.vel_y * delta;
+        if  (this.ang_vel < -max_rotation_speed){
+            this.ang_vel = -max_rotation_speed;
+        } else if (this.ang_vel > max_rotation_speed){
+            this.ang_vel = +max_rotation_speed;
+        }
+        this.sprite.rotation += this.ang_vel * delta; 
+        // console.log(this.sprite.rotation)
+        this.vel_x = friction * this.vel_x;
+        this.vel_y = friction * this.vel_y;
+        this.ang_vel = friction * this.ang_vel;
+    
+        app.stage.removeChild(this.line_v)
+        this.line_v = new Graphics;
+        this.line_v.lineStyle(5, 0xFFEA00, 1).moveTo(this.sprite.x, this.sprite.y)
+            .lineTo(this.sprite.x + 50*this.vel_x, this.sprite.y + 50*this.vel_y);
+        app.stage.addChild(this.line_v)
+        
+       
+    }
+
+    getAbsoluteVelocity() {
+        return Math.sqrt(this.vel_x * this.vel_x + this.vel_y * this.vel_y)
+    }
+}
+
+let player = new Car("./images/car1.png", 1.0, 1.0, 1.0, 10);
+player.spawn(100,100);
+
+let enemy = new Car("./images/car2.png", 1.0, 1.0, 1.0, 10);
+enemy.spawn(600,600);
+
+let enemy2 = new Car("./images/train.png", 1.0, 1.0, 1.0, 10);
+enemy2.spawn(1200,600);
+
+let enemy3 = new Car("./images/bus-stop.png", 1000.0, .01, 1.0, 10);
+enemy3.spawn(1500,200);
 
 //  Animation loop
+const acceleration = 0.2;
+var rotation_speed = 2;
+const friction = 0.99;
 
 app.ticker.add(delta => loop(delta));
-
 function loop(delta) {
 
-    speed += delta*acceleration*forwardDown;
-    rotation += maneuverability*delta*rightDown*speed;      
+    enemy.update(delta)
+    enemy2.update(delta)
+    enemy3.update(delta)
+    player.update(delta)
+    player.vel_x += delta * acceleration * forward *  Math.cos(player.sprite.rotation);
+    player.vel_y += delta * acceleration * forward *  Math.sin(player.sprite.rotation);
 
-    car1Sprite.x = car1Sprite.x + delta*speed * Math.cos(car1Sprite.rotation);
-    car1Sprite.y = car1Sprite.y + delta*speed * Math.sin(car1Sprite.rotation);
-    speed = friction * speed;
-    rotation = friction * rotation;
-    if(rotation <= max_rotation_speed && rotation >= -max_rotation_speed){
-        car1Sprite.rotation += delta*rotation;
-    } else if  (rotation < -max_rotation_speed){
-        car1Sprite.rotation -= delta*max_rotation_speed;
-    } else if (rotation > max_rotation_speed){
-        car1Sprite.rotation += delta*max_rotation_speed;
+    let sign = Math.sign(Math.sin(player.sprite.rotation) * player.vel_y + Math.cos(player.sprite.rotation) * player.vel_x);
+    // console.log(sign);
+    player.ang_vel += sign * delta * rightDown * 0.0001 * player.getAbsoluteVelocity();
+    
+    
+    if (rectsIntersect(player.sprite, enemy.sprite)){
+        collisionVector(player, enemy);
+
     }
+
+    if (rectsIntersect(player.sprite, enemy2.sprite)){
+        collisionVector(player, enemy2);
+
+    }
+
+    if (rectsIntersect(player.sprite, enemy3.sprite)){
+        collisionVector(player, enemy3);
+
+    }
+
+    if (rectsIntersect(enemy.sprite, enemy2.sprite)){
+        collisionVector(enemy, enemy2);
+
+    }
+
+    if (rectsIntersect(enemy2.sprite, enemy3.sprite)){
+        collisionVector(enemy2, enemy3);
+
+    }
+    if (rectsIntersect(enemy3.sprite, enemy.sprite)){
+        collisionVector(enemy3, enemy);
+
+    }
+    
 };
 
+function drawMovement(obj){
+
+}
+
+
+// Detect collision
+let hitBottom = 0.0;
+let hitTop = 0.0;
+let hitRight = 0.0;
+let hitLeft = 0.0;
+
+// Simple intersection check
+function rectsIntersect(a, b) {
+    let ab = a.getBounds(); // Returns the framing rectangle of the circle as a Rectangle object
+    // console.log(ab);
+    let bb = b.getBounds();
+    return ab.x + ab.width > bb.x &&
+           ab.x < bb.x + bb.width &&
+           ab.y + ab.height > bb.y &&
+           ab.y < bb.y + bb.height;
+}
+
+// Side collision check
+function collide(r1,r2){
+    var dx=(r1.x+r1.w/2)-(r2.x+r2.w/2);
+    var dy=(r1.y+r1.h/2)-(r2.y+r2.h/2);
+    var width=(r1.w+r2.w)/2;
+    var height=(r1.h+r2.h)/2;
+    var crossWidth=width*dy;
+    var crossHeight=height*dx;
+    var collision='none';
+    //
+    if(Math.abs(dx)<=width && Math.abs(dy)<=height){
+        if(crossWidth>crossHeight){
+            collision=(crossWidth>(-crossHeight))?'bottom':'left';
+        }else{
+            collision=(crossWidth>-(crossHeight))?'right':'top';
+        }
+    }
+    return(collision);
+}
+
+// Collision interaction with impulse ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+function collisionVector(obj1, obj2) {
+    let vCollision = {x: obj2.sprite.x - obj1.sprite.x, y: obj2.sprite.y - obj1.sprite.y};
+    
+    let distance = Math.sqrt((obj2.sprite.x-obj1.sprite.x)*(obj2.sprite.x-obj1.sprite.x) + (obj2.sprite.y-obj1.sprite.y)*(obj2.sprite.y-obj1.sprite.y));
+    // console.log(distance);
+    let vCollisionNorm = {x: vCollision.x / distance, y: vCollision.y / distance};
+    // console.log(vCollisionNorm);
+    let vRelativeVelocity = {x: obj1.vel_x - obj2.vel_x, y: obj1.vel_y - obj2.vel_y};
+
+    let speed = vRelativeVelocity.x * vCollisionNorm.x + vRelativeVelocity.y * vCollisionNorm.y;
+    
+    if (speed < 0){
+        return;
+    }
+
+    let impulse = 2 * speed / (obj1.mass + obj2.mass);
+    obj1.vel_x -= (impulse * obj2.mass * vCollisionNorm.x);
+    obj1.vel_y -= (impulse * obj2.mass * vCollisionNorm.y);
+    obj2.vel_x += (impulse * obj1.mass * vCollisionNorm.x);
+    obj2.vel_y += (impulse * obj1.mass * vCollisionNorm.y);
+
+    function update(secondsPassed){
+        // Move with set velocity
+        this.x += this.vx * secondsPassed;
+        this.y += this.vy * secondsPassed;
+
+        // Calculate the angle (vy before vx)
+        let radians = Math.atan2(this.vy, this.vx);
+
+        // Convert to degrees
+        let degrees = 180 * radians / Math.PI;
+    };
+
+    function draw() {
+        // Draw heading vector
+        this.context.beginPath();
+        this.context.moveTo(this.x, this.y);
+        this.context.lineTo(this.x + this.vx, this.y + this.vy);
+        this.context.stroke();
+    }
+
+
+}
+
 // Filters
-let vShader;
-let fShader;
-let uniforms;
-const filter = new PIXI.Filter(vShader, fShader, uniforms);
+// let vShader;
+// let fShader;
+// let uniforms;
+// const filter = new PIXI.Filter(vShader, fShader, uniforms);
 
 
 // Path interpolation
-// const points = [new PIXI.Point(200, 200), new PIXI.Point(500, 50), new PIXI.Point(700, 300), new PIXI.Point(600, 450), new PIXI.Point(350, 300)];
-// let circle = new PIXI.Graphics().beginFill(0x000000).drawCircle(0, 0, 5);
-// app.stage.addChild(circle);
+const points = [new PIXI.Point(200, 200), new PIXI.Point(500, 50), new PIXI.Point(700, 300), new PIXI.Point(600, 450), new PIXI.Point(350, 300)];
+let circle = new PIXI.Graphics().beginFill(0x000000).drawCircle(0, 0, 5);
+app.stage.addChild(circle);
 
-// let interpolation = new PathInterpol(points, circle, 0.1);
-// interpolation.showLine(true);
-// interpolation.showInterpolatedPoints(true);
-// interpolation.showPoints(true);
-// interpolation.startAnimation(1);
+let interpolation = new PathInterpol(points, circle, 0.1);
+interpolation.showLine(true);
+interpolation.showInterpolatedPoints(true);
+interpolation.showPoints(true);
+interpolation.startAnimation(1);
+
+// example inbuilt
+// car1Sprite.filters = [new PIXI.filters.BlurFilter()]
+
+// Handling points in 3D space
+// let vShader = vertShader.innerHTML; 
+// let vShader = vertShader; 
+// Drawing pixels
+// let fShader = fragShader.innerHTML;
+// let fShader = fragShader;
+// let uniforms = {};
+
+// const myFilter = new PIXI.Filter(vShader, fShader, uniforms);
+// car1Sprite.filters = [myFilter];
