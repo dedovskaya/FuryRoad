@@ -84,37 +84,31 @@ class PathInterpol {
     });
 
     #animate = (() => {
-        if (!paused) {
-            let p1 = this.#interpolatedPoints[this.#currentPointIndex];
-            let p2 = this.#interpolatedPoints[0];
+        let p1 = this.#interpolatedPoints[this.#currentPointIndex];
+        let p2 = this.#interpolatedPoints[0];
 
-            if (this.#currentPointIndex + 1 < this.#interpolatedPoints.length) {
-                p2 = this.#interpolatedPoints[this.#currentPointIndex + 1];
-            }
-
-            var x = (1 - this.#currentDistance) * p1.x + this.#currentDistance * p2.x;
-            var y = (1 - this.#currentDistance) * p1.y + this.#currentDistance * p2.y;
-
-            this.gameObject.x = x;
-            this.gameObject.y = y;
-
-            this.#currentDistance += this.speed;
-            if (this.#currentDistance >= 1 - this.speed) {
-                for (var i = 0; i < this.#currentDistance; i++) {
-                    this.#currentPointIndex++;
-
-                    if (this.#currentPointIndex == this.#interpolatedPoints.length) {
-                        this.#currentPointIndex = 0;
-                    }
-                }
-
-                this.#currentDistance = 0;
-            }
+        if (this.#currentPointIndex + 1 < this.#interpolatedPoints.length) {
+            p2 = this.#interpolatedPoints[this.#currentPointIndex + 1];
         }
 
-        setTimeout(() => {
-            requestAnimationFrame(this.#animate);
-        }, 1);
+        var x = (1 - this.#currentDistance) * p1.x + this.#currentDistance * p2.x;
+        var y = (1 - this.#currentDistance) * p1.y + this.#currentDistance * p2.y;
+
+        this.gameObject.x = x;
+        this.gameObject.y = y;
+
+        this.#currentDistance += this.speed;
+        if (this.#currentDistance >= 1 - this.speed) {
+            for (var i = 0; i < this.#currentDistance; i++) {
+                this.#currentPointIndex++;
+
+                if (this.#currentPointIndex == this.#interpolatedPoints.length) {
+                    this.#currentPointIndex = 0;
+                }
+            }
+
+            this.#currentDistance = 0;
+        }
     });
 
     startAnimation = ((speed) => {
@@ -123,7 +117,7 @@ class PathInterpol {
         }
 
         this.speed = speed;
-        requestAnimationFrame(this.#animate);
+        app.ticker.add(this.#animate);
     });
 
     showPoints = ((show) => {

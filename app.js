@@ -108,8 +108,7 @@ document.addEventListener('keyup', (event) => {
     }
 
     if (event.key == "p") {
-        paused = true;
-        // PIXI.shared.ticker.stop();
+        app.ticker.stop();
     }
        
     
@@ -186,8 +185,8 @@ player.spawn(100,100);
 let enemy = new Car("./images/car2.png", 1.0, 1.0, 1.0, 10);
 enemy.spawn(600,600);
 
-let enemy2 = new Car("./images/train.png", 1.0, 1.0, 1.0, 10);
-enemy2.spawn(1200,600);
+let enemy2 = new Car("./images/train.png", 1000.0, 1.0, 1.0, 10);
+enemy2.spawn(0,0);
 
 let enemy3 = new Car("./images/bus-stop.png", 1000.0, .01, 1.0, 10);
 enemy3.spawn(1500,200);
@@ -339,10 +338,10 @@ function collisionVector(obj1, obj2) {
 
 // Path interpolation
 const points = [new PIXI.Point(200, 200), new PIXI.Point(500, 50), new PIXI.Point(700, 300), new PIXI.Point(600, 450), new PIXI.Point(350, 300)];
-let circle = new PIXI.Graphics().beginFill(0x000000).drawCircle(0, 0, 5);
-app.stage.addChild(circle);
+// let circle = new PIXI.Graphics().beginFill(0x000000).drawCircle(0, 0, 5);
+// app.stage.addChild(circle);
 
-let interpolation = new PathInterpol(points, circle, 0.1);
+let interpolation = new PathInterpol(points, enemy2.sprite, 0.1);
 interpolation.showLine(true);
 interpolation.showInterpolatedPoints(true);
 interpolation.showPoints(true);
