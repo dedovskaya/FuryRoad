@@ -9,6 +9,10 @@ class PathInterpol {
     #currentDistance = 0;
 
     constructor(points, gameObject, precision) {
+        if (points.length < 4) {
+            throw new Error("The points array must contain at least 4 points");
+        }
+
         this.points = points;
         this.gameObject = gameObject;
 
@@ -96,6 +100,12 @@ class PathInterpol {
 
         this.gameObject.x = x;
         this.gameObject.y = y;
+
+        // Rotate the gameObject
+        if (p2.y != y && p2.x != x) {
+            let rotation = Math.atan2(p2.y - y, p2.x - x);
+            this.gameObject.rotation = rotation;
+        }
 
         this.#currentDistance += this.speed;
         if (this.#currentDistance >= 1 - this.speed) {
