@@ -108,7 +108,14 @@ document.addEventListener('keyup', (event) => {
     }
 
     if (event.key == "p") {
-        app.ticker.stop();
+        if (!paused) {
+            app.ticker.stop();
+            paused = true;
+        }
+        else {
+            app.ticker.start();
+            paused = false;
+        }
     }
        
     
@@ -345,7 +352,9 @@ let interpolation = new PathInterpol(points, enemy2.sprite, 0.1);
 interpolation.showLine(true);
 interpolation.showInterpolatedPoints(true);
 interpolation.showPoints(true);
-interpolation.startAnimation(1);
+interpolation.startAnimation(0.5);
+
+let motionBlur = new MotionBlur(enemy2.sprite, 4);
 
 // example inbuilt
 // car1Sprite.filters = [new PIXI.filters.BlurFilter()]
