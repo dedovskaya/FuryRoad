@@ -52,144 +52,12 @@ app.stage.addChild(BackgroundSprite);
 BackgroundSprite.width = window.innerWidth;
 BackgroundSprite.height = window.innerHeight;
 
-
-// Keys ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-let forward = 0.0;
-let forwardDown = 0.0;
-let rightDown = 0.0;
-let Ctrl = 0.0
-
-document.addEventListener('keydown', (event) => {
-   if (event.key == "ArrowUp") {
-    forwardDown = 1;
-   }
-
-   if (event.key == "ArrowRight") {
-    rightDown = 1;
-   }
-
-   if (event.key == "ArrowDown") {
-    forwardDown = -1;
-   }
-
-   if (event.key == "ArrowLeft") {
-    rightDown = -1;
-   }
-   if(event.key === "ArrowUp" && player.vel_x <= player.max_velocity){
-    forward = 1;
-    } ;
-    
-    if(event.key === "ArrowDown" && player.vel_x >= -player.max_velocity)  {
-    forward = -1;
-    } ;
-
-
-});
-
-let paused = false;
-
-document.addEventListener('keyup', (event) => {
-    if (event.key == "ArrowUp") {
-        forwardDown = 0;
-    }
-
-    if (event.key == "ArrowRight") {
-        rightDown = 0;
-    }
-
-    if (event.key == "ArrowDown") {
-        forwardDown = 0;
-    }
-    
-    if (event.key == "ArrowLeft") {
-        rightDown = 0;
-    }
-
-    if (event.key == "p") {
-        if (!paused) {
-            app.ticker.stop();
-            paused = true;
-        }
-        else {
-            app.ticker.start();
-            paused = false;
-        }
-    }
-       
-    if(event.key === "ArrowUp"){
-        forward = 0;
-    } ;
-        
-    if(event.key === "ArrowDown")  {
-        forward = 0;
-    } ;
- });
-
-//  Car class //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
- class Car {
-    constructor (url, mass, max_torque, max_force, max_velocity) {
-        this.sprite = new PIXI.Sprite.from(url);
-        this.sprite.scale.set(0.5, 0.5);
-        this.sprite.anchor.set(0.5, 0.5);
-        this.mass = mass;
-        this.vel_x = 0;
-        this.vel_y = 0;
-        this.ang_vel = 0;
-        this.max_torque = max_torque;
-        this.max_force = max_force;
-        this.max_velocity = max_velocity;
-        this.line_v = new Graphics();
-        this.inertia_moment = this.mass * 100000.0
-    }
-    
-    // List of all Car type elements
-    static allCars = []
-    static max_rotation_speed = 0.1;
-
-    spawn(x, y) {
-        console.log(this.sprite.position);
-        app.stage.addChild(this.sprite);
-        this.sprite.x = x;
-        this.sprite.y = y;
-        (Car.allCars).push(this)
-        console.log(Car.allCars)
-    }
-
-    update(delta) {
-        this.sprite.x += this.vel_x * delta;
-        this.sprite.y += this.vel_y * delta;
-        if  (this.ang_vel < -Car.max_rotation_speed){
-            this.ang_vel = -Car.max_rotation_speed;
-        } else if (this.ang_vel > Car.max_rotation_speed){
-            this.ang_vel = +Car.max_rotation_speed;
-        }
-        this.sprite.rotation += this.ang_vel * delta; 
-
-        this.vel_x = friction * this.vel_x;
-        this.vel_y = friction * this.vel_y;
-        this.ang_vel = friction * this.ang_vel;
-    
-        app.stage.removeChild(this.line_v)
-        this.line_v = new Graphics;
-        this.line_v.lineStyle(5, 0xFFEA00, 1).moveTo(this.sprite.x, this.sprite.y)
-            .lineTo(this.sprite.x + 50*this.vel_x, this.sprite.y + 50*this.vel_y);
-        app.stage.addChild(this.line_v)
-        
-       
-    }
-
-    getAbsoluteVelocity() {
-        return Math.sqrt(this.vel_x * this.vel_x + this.vel_y * this.vel_y)
-    }
-
-
-
-}
-
 let player = new Car("./images/car1.png", 1.0, 1.0, 1.0, 10);
 player.spawn(1100,700);
+
+//  Input reader for player
+input = new InputReader(player);
+
 
 let enemy = new Car("./images/car2.png", 1.0, 1.0, 1.0, 10);
 enemy.spawn(500,600);
@@ -215,12 +83,12 @@ function loop(delta) {
         Car.allCars[i].update(delta);
     }
 
-    player.vel_x += delta * acceleration * forward *  Math.cos(player.sprite.rotation);
-    player.vel_y += delta * acceleration * forward *  Math.sin(player.sprite.rotation);
+    player.vel_x += delta * acceleration * input.forward *  Math.cos(player.sprite.rotation);
+    player.vel_y += delta * acceleration * input.forward *  Math.sin(player.sprite.rotation);
 
     let sign = Math.sign(Math.sin(player.sprite.rotation) * player.vel_y + Math.cos(player.sprite.rotation) * player.vel_x);
 
-    player.ang_vel += sign * delta * rightDown * 0.0002 * player.getAbsoluteVelocity();
+    player.ang_vel += sign * delta * input.rightDown * 0.0002 * player.getAbsoluteVelocity();
     
     for (var i = 0; i < Car.allCars.length-1; i++) {
         for (var j = i+1; j < Car.allCars.length; j++) {
@@ -267,7 +135,6 @@ function collisionVector(obj1, obj2) {
     
     
     // Inertia, angular momentum, angular velocity
-
     let perpendicularSpeed = vRelativeVelocity.x * vCollisionNorm.y - vRelativeVelocity.y * vCollisionNorm.x;
     let perpendicularDeltaP = 2*perpendicularSpeed*(1/obj1.mass + 1/obj2.mass)
 
