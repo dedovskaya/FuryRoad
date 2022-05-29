@@ -58,7 +58,6 @@ player.spawn(1100,700);
 //  Input reader for player
 input = new InputReader(player);
 
-
 let enemy = new Car("./images/car2.png", 1.0, 1.0, 1.0, 10);
 enemy.spawn(500,600);
 
