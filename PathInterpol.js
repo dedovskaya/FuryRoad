@@ -117,7 +117,7 @@ class PathInterpol {
                 }
             }
 
-            this.#currentDistance = 0;
+            this.#currentDistance = this.#currentDistance % 1;
         }
     });
 
@@ -128,6 +128,10 @@ class PathInterpol {
 
         this.speed = speed;
         app.ticker.add(this.#animate);
+    });
+
+    stopAnimation = (() => {
+        app.ticker.remove(this.#animate);
     });
 
     showPoints = ((show) => {

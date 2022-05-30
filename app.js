@@ -106,17 +106,6 @@ document.addEventListener('keyup', (event) => {
     if (event.key == "ArrowLeft") {
         rightDown = 0;
     }
-
-    if (event.key == "p") {
-        if (!paused) {
-            app.ticker.stop();
-            paused = true;
-        }
-        else {
-            app.ticker.start();
-            paused = false;
-        }
-    }
        
     
     if(event.key === "ArrowUp"){
@@ -126,6 +115,30 @@ document.addEventListener('keyup', (event) => {
     if(event.key === "ArrowDown")  {
         forward = 0;
     } ;
+
+
+    // Show settings
+    if (event.key === "Escape") {
+        const settingsOverlay = document.querySelector('#settingsOverlay');
+        if (settingsOverlay.classList.contains('collapse')) {
+            settingsOverlay.classList.remove('collapse');
+        }
+        else {
+            settingsOverlay.classList.add('collapse');
+        }
+    }
+
+    // Pause/resume animation
+    if (event.key === "p") {
+        if (!paused) {
+            app.ticker.stop();
+            paused = true;
+        }
+        else {
+            app.ticker.start();
+            paused = false;
+        }
+    }
  });
 
 //  Car class //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,27 +358,46 @@ function collisionVector(obj1, obj2) {
 
 // Path interpolation
 const points = [new PIXI.Point(200, 200), new PIXI.Point(500, 50), new PIXI.Point(700, 300), new PIXI.Point(600, 450), new PIXI.Point(350, 300)];
-// let circle = new PIXI.Graphics().beginFill(0x000000).drawCircle(0, 0, 5);
-// app.stage.addChild(circle);
-
-let interpolation = new PathInterpol(points, enemy2.sprite, 0.1);
-interpolation.showLine(true);
-interpolation.showInterpolatedPoints(true);
-interpolation.showPoints(true);
+let interpolation = new PathInterpol(points, enemy2.sprite, 0.5);
 interpolation.startAnimation(0.5);
 
+
+// Motion blur
 let motionBlur = new MotionBlur(enemy2.sprite, 4);
 
-// example inbuilt
-// car1Sprite.filters = [new PIXI.filters.BlurFilter()]
 
-// Handling points in 3D space
-// let vShader = vertShader.innerHTML; 
-// let vShader = vertShader; 
-// Drawing pixels
-// let fShader = fragShader.innerHTML;
-// let fShader = fragShader;
-// let uniforms = {};
+// Settings
+document.querySelector('#lineInterpolationSplineCurve').addEventListener('change', ((e) => {
+    if (e.currentTarget.checked) {
+        interpolation.showLine(true);
+    }
+    else {
+        interpolation.showLine(false);
+    }
+}));
 
-// const myFilter = new PIXI.Filter(vShader, fShader, uniforms);
-// car1Sprite.filters = [myFilter];
+document.querySelector('#lineInterpolationControlPoints').addEventListener('change', ((e) => {
+    if (e.currentTarget.checked) {
+        interpolation.showPoints(true);
+    }
+    else {
+        interpolation.showPoints(false);
+    }
+}));
+
+document.querySelector('#lineInterpolationSamplePoints').addEventListener('change', ((e) => {
+    if (e.currentTarget.checked) {
+        interpolation.showInterpolatedPoints(true);
+    }
+    else {
+        interpolation.showInterpolatedPoints(false);
+    }
+}));
+
+document.querySelector('#lineInterpolationTraversalSpeed').addEventListener('change', ((e) => {
+    interpolation.speed = parseFloat(e.currentTarget.value);
+}));
+
+document.querySelector('#lineInterpolationAnimationUpdateRate').addEventListener('change', ((e) => {
+    app.ticker.speed = parseFloat(e.currentTarget.value);
+}));
