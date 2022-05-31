@@ -157,10 +157,17 @@ interpolation.startAnimation(0.5);
 
 
 // Motion blur
-let motionBlur = new MotionBlur(enemy2.sprite, 4);
+let motionBlur = new MotionBlur(enemy2.sprite, 4, "POST_PROCESS");
 
 
 // Settings
+document.querySelectorAll('input[name="updateRate"]').forEach(element => {
+    element.addEventListener('change', ((e) => {
+        app.ticker.speed = parseFloat(e.currentTarget.value);
+    }));
+});
+
+// Line interpolation
 document.querySelector('#lineInterpolationSplineCurve').addEventListener('change', ((e) => {
     if (e.currentTarget.checked) {
         interpolation.showLine(true);
@@ -188,10 +195,15 @@ document.querySelector('#lineInterpolationSamplePoints').addEventListener('chang
     }
 }));
 
-document.querySelector('#lineInterpolationTraversalSpeed').addEventListener('change', ((e) => {
-    interpolation.speed = parseFloat(e.currentTarget.value);
-}));
+document.querySelectorAll('input[name="lineInterpolationTraversalSpeed"]').forEach(element => {
+    element.addEventListener('change', ((e) => {
+        interpolation.speed = parseFloat(e.currentTarget.value);
+    }));
+});
 
-document.querySelector('#lineInterpolationAnimationUpdateRate').addEventListener('change', ((e) => {
-    app.ticker.speed = parseFloat(e.currentTarget.value);
-}));
+// Motion blur
+document.querySelectorAll('input[name="motionBlurTechnique"]').forEach(element => {
+    element.addEventListener('change', ((e) => {
+        motionBlur.technique = e.currentTarget.value;
+    }));
+});

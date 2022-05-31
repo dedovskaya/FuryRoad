@@ -62,8 +62,28 @@ class InputReader {
             if (event.key == "ArrowLeft") {
                 this.rightDown = 0;
             }
-        
-            if (event.key == "p") {
+               
+            if(event.key === "ArrowUp"){
+                this.forward = 0;
+            } ;
+                
+            if(event.key === "ArrowDown")  {
+                this.forward = 0;
+            } ;
+
+            // Show settings
+            if (event.key === "Escape") {
+                const settingsOverlay = document.querySelector('#settingsOverlay');
+                if (settingsOverlay.classList.contains('collapse')) {
+                    settingsOverlay.classList.remove('collapse');
+                }
+                else {
+                    settingsOverlay.classList.add('collapse');
+                }
+            }
+
+            // Pause/resume animation
+            if (event.key === "p") {
                 if (!this.paused) {
                     app.ticker.stop();
                     this.paused = true;
@@ -73,14 +93,6 @@ class InputReader {
                     this.paused = false;
                 }
             }
-               
-            if(event.key === "ArrowUp"){
-                this.forward = 0;
-            } ;
-                
-            if(event.key === "ArrowDown")  {
-                this.forward = 0;
-            } ;
          });
     }
 }
