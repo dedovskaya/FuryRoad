@@ -8,9 +8,10 @@ const app = new Application({
     antialias: true
 });
 app.renderer.backgroundColor = 0x23395D;
-app.renderer.resize(window.innerWidth, window.innerHeight);
+app.renderer.resize(1680, 1024);
 app.renderer.view.style.position = "absolute";
-document.body.appendChild(app.view);
+app.renderer.view.style.top = 0;
+document.querySelector("#game").appendChild(app.view);
 
 const Graphics = PIXI.Graphics;
 
@@ -152,12 +153,15 @@ function collisionVector(obj1, obj2) {
 
 // Path interpolation
 const points = [new PIXI.Point(200, 200), new PIXI.Point(500, 50), new PIXI.Point(700, 300), new PIXI.Point(600, 450), new PIXI.Point(350, 300)];
-let interpolation = new PathInterpol(points, enemy2.sprite, 0.5);
-interpolation.startAnimation(0.5);
+let interpolation = new PathInterpol(points, enemy2.sprite, 0.1);
+interpolation.startAnimation(0.25);
+// setTimeout(() => {
+//     app.ticker.stop();
+// }, 150);
 
 
 // Motion blur
-let motionBlur = new MotionBlur(enemy2.sprite, 4, "POST_PROCESS");
+// let motionBlur = new MotionBlur(enemy2.sprite, 20, "POST_PROCESS");
 
 
 // Settings
@@ -207,3 +211,24 @@ document.querySelectorAll('input[name="motionBlurTechnique"]').forEach(element =
         motionBlur.technique = e.currentTarget.value;
     }));
 });
+
+
+console.log(enemy2.sprite);
+
+
+
+
+
+
+// var extract = app.renderer.plugins.extract;
+// var canvas = extract.canvas();
+// const context = canvas.getContext("2d");
+// var rgba = context.getImageData(20, 20, 1, 1).data;
+
+// console.log(enemy2.sprite.texture);
+// setTimeout(() => {
+    
+// // console.log(rgba);
+// let pixels = app.renderer.extract.pixels(app.stage);
+
+// }, 150);

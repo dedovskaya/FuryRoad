@@ -1,5 +1,6 @@
 class PathInterpol {
     #interpolatedPoints = [];
+    #arcLengths = [];
     #visualizations = {
         points: [],
         interpolatedPoints: [],
@@ -7,6 +8,10 @@ class PathInterpol {
     };
     #currentPointIndex = 0;
     #currentDistance = 0;
+
+    #previousPoint = new PIXI.Point(0, 0);
+
+    #cdistance = 0;
 
     constructor(points, gameObject, precision) {
         if (points.length < 4) {
@@ -44,9 +49,24 @@ class PathInterpol {
             let p2 = this.points[i];
             let p3 = i + 1 == this.points.length ? this.points[0] : this.points[i + 1];
 
-            for (var j = 0; j < 1; j += 0.1) {
+            let interpolatedPoints = [];
+            let totalArcLength = 0;
+            for (var j = 0; j < 1; j += precision) {
                 let p = this.#catmullRom(j, p0, p1, p2, p3);
                 this.#interpolatedPoints.push(p);
+                
+                let arcLength = 0;
+                if (interpolatedPoints.length > 0) {
+                    arcLength = this.#distance(p, interpolatedPoints[interpolatedPoints.length - 1].point);
+                }
+
+                interpolatedPoints.push({
+                    controlPoints: [p0, p1, p2, p3],
+                    parametricValue: j,
+                    point: p,
+                    arcLength: totalArcLength + arcLength,
+                });
+                totalArcLength += arcLength;
 
                 // Draw interpolated point
                 let point = new PIXI.Graphics().beginFill(0xFFA000).drawCircle(p.x, p.y, 2);
@@ -54,6 +74,15 @@ class PathInterpol {
                 point.visible = false;
                 this.#visualizations.interpolatedPoints.push(point);
                 app.stage.addChild(point);
+            }
+
+            for (var j = 0; j < interpolatedPoints.length; j++) {
+                this.#arcLengths.push({
+                    controlPoints: interpolatedPoints[j].controlPoints,
+                    parametricValue: interpolatedPoints[j].parametricValue,
+                    point: interpolatedPoints[j].point,
+                    arcLength: (interpolatedPoints[j].arcLength / totalArcLength) + i,
+                });
             }
 
             // Draw point
@@ -65,16 +94,16 @@ class PathInterpol {
         }
 
         // Draw lines
-        for (var i = 0; i < this.#interpolatedPoints.length; i++) {
+        for (var i = 0; i < this.#arcLengths.length; i++) {
             let line = new PIXI.Graphics().lineStyle(1, 0xffffff);
 
-            if (i == this.#interpolatedPoints.length - 1) {
-                line.moveTo(this.#interpolatedPoints[i].x, this.#interpolatedPoints[i].y)
-                    .lineTo(this.#interpolatedPoints[0].x, this.#interpolatedPoints[0].y);
+            if (i == this.#arcLengths.length - 1) {
+                line.moveTo(this.#arcLengths[i].point.x, this.#arcLengths[i].point.y)
+                    .lineTo(this.#arcLengths[0].point.x, this.#arcLengths[0].point.y);
             }
             else {
-                line.moveTo(this.#interpolatedPoints[i].x, this.#interpolatedPoints[i].y)
-                    .lineTo(this.#interpolatedPoints[i + 1].x, this.#interpolatedPoints[i + 1].y);
+                line.moveTo(this.#arcLengths[i].point.x, this.#arcLengths[i].point.y)
+                    .lineTo(this.#arcLengths[i + 1].point.x, this.#arcLengths[i + 1].point.y);
             }
 
             line.visible = false;
@@ -87,38 +116,56 @@ class PathInterpol {
         parent.addChild(this.gameObject);
     });
 
-    #animate = (() => {
-        let p1 = this.#interpolatedPoints[this.#currentPointIndex];
-        let p2 = this.#interpolatedPoints[0];
-
-        if (this.#currentPointIndex + 1 < this.#interpolatedPoints.length) {
-            p2 = this.#interpolatedPoints[this.#currentPointIndex + 1];
+    #animate = ((delta) => {
+        this.#cdistance += (this.speed * delta) / this.points.length;
+        while (this.#cdistance > this.points.length) {
+            this.#cdistance -= this.points.length;
         }
 
-        var x = (1 - this.#currentDistance) * p1.x + this.#currentDistance * p2.x;
-        var y = (1 - this.#currentDistance) * p1.y + this.#currentDistance * p2.y;
+        let fromIndex = 0;
+        for (var i = 0; i < this.#arcLengths.length; i++) {
+            if (this.#arcLengths[i].arcLength > this.#cdistance) {
+                fromIndex = i - 1;
+                if (fromIndex < 0) {
+                    fromIndex = this.#arcLengths.length - 1;
+                }
+                break;
+            }
+        }
 
-        this.gameObject.x = x;
-        this.gameObject.y = y;
+        let nextIndex = fromIndex + 1;
+        if (fromIndex == this.#arcLengths.length - 1) {
+            nextIndex = 0;
+        }
+
+        let parametricValue = 0;
+        if (this.#arcLengths[nextIndex].arcLength != 0) {
+            let currentArcLength = this.#cdistance - this.#arcLengths[fromIndex].arcLength;
+            let arcLength = this.#arcLengths[nextIndex].arcLength - this.#arcLengths[fromIndex].arcLength;
+
+            let parametricValueDifference = this.#arcLengths[nextIndex].parametricValue - this.#arcLengths[fromIndex].parametricValue;
+
+            let ratio = currentArcLength / arcLength;
+            parametricValue = parametricValueDifference * ratio + this.#arcLengths[fromIndex].parametricValue;
+        }
+
+        let p0 = this.#arcLengths[i].controlPoints[0];
+        let p1 = this.#arcLengths[i].controlPoints[1];
+        let p2 = this.#arcLengths[i].controlPoints[2];
+        let p3 = this.#arcLengths[i].controlPoints[3];
+
+        let p = this.#catmullRom(parametricValue, p0, p1, p2, p3);
+
+        this.gameObject.x = p.x;
+        this.gameObject.y = p.y;
 
         // Rotate the gameObject
-        if (p2.y != y && p2.x != x) {
-            let rotation = Math.atan2(p2.y - y, p2.x - x);
+        if (p.x != this.#previousPoint.x && p.y != this.#previousPoint.y) {
+            let rotation = Math.atan2(p.y - this.#previousPoint.y, p.x - this.#previousPoint.x);
             this.gameObject.rotation = rotation;
         }
 
-        this.#currentDistance += this.speed;
-        if (this.#currentDistance >= 1 - this.speed) {
-            for (var i = 0; i < this.#currentDistance; i++) {
-                this.#currentPointIndex++;
-
-                if (this.#currentPointIndex == this.#interpolatedPoints.length) {
-                    this.#currentPointIndex = 0;
-                }
-            }
-
-            this.#currentDistance = this.#currentDistance % 1;
-        }
+        this.#previousPoint = p;
     });
 
     startAnimation = ((speed) => {

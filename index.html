@@ -14,8 +14,25 @@
             font-family: 'Inter', sans-serif;
         }
 
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game {
+            position: relative;
+            width: 1680px;
+            height: 1024px;
+            display: block;
+            margin: 0 auto;
+        }
+
         .overlay {
-            position: fixed;
+            position: absolute;
             width: 100%;
             height: 100vh;
             padding: 1rem 0;
@@ -31,90 +48,94 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="overlay collapse" id="settingsOverlay">
-        <div class="container">
-            <h2>Settings</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <h3>General</h3>
-                </div>
-                <div class="col-md-8">
-                    <div class="mb-3">
-                        <label class="form-label">Animation update rate</label>
-                        <div class="row">
-                            <div class="col">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="updateRate" id="updateRate1" value="1" checked="checked">
-                                    <label class="form-check-label" for="updateRate1">1x</label>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="updateRate" id="updateRate2" value="2">
-                                    <label class="form-check-label" for="updateRate2">2x</label>
-                                </div>
-                            </div>
+    <div class="game-container">
+        <div class="game" id="game">
+            <div class="overlay collapse" id="settingsOverlay">
+                <div class="container">
+                    <h2>Settings</h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3>General</h3>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <h3>Path Interpolation</h3>
-                </div>
-                <div class="col-md-8">
-                    <div class="mb-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="lineInterpolationSplineCurve">
-                            <label class="form-check-label" for="lineInterpolationSplineCurve">Show spline curve</label>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="lineInterpolationControlPoints">
-                            <label class="form-check-label" for="lineInterpolationControlPoints">Show control points</label>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="lineInterpolationSamplePoints">
-                            <label class="form-check-label" for="lineInterpolationSamplePoints">Show sample points</label>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Traversal speed</label>
-                        <div class="row">
-                            <div class="col">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="lineInterpolationTraversalSpeed" id="lineInterpolationTraversalSpeed1" value="0.5" checked="checked">
-                                    <label class="form-check-label" for="lineInterpolationTraversalSpeed1">0.5</label>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="lineInterpolationTraversalSpeed" id="lineInterpolationTraversalSpeed2" value="1">
-                                    <label class="form-check-label" for="lineInterpolationTraversalSpeed2">1</label>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="lineInterpolationTraversalSpeed" id="lineInterpolationTraversalSpeed3" value="2">
-                                    <label class="form-check-label" for="lineInterpolationTraversalSpeed3">2</label>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label class="form-label">Animation update rate</label>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="updateRate" id="updateRate1" value="1" checked="checked">
+                                            <label class="form-check-label" for="updateRate1">1x</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="updateRate" id="updateRate2" value="2">
+                                            <label class="form-check-label" for="updateRate2">2x</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <h3>Motion blur</h3>
-                </div>
-                <div class="col-md-8">
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="motionBlurTechnique" id="motionBlurPostProcess" value="POST_PROCESS" checked="checked">
-                            <label class="form-check-label" for="motionBlurPostProcess">Post-process</label>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3>Path Interpolation</h3>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="motionBlurTechnique" id="motionBlurSupersampling" value="SUPERSAMPLING">
-                            <label class="form-check-label" for="motionBlurStochastic">Supersampling</label>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="lineInterpolationSplineCurve">
+                                    <label class="form-check-label" for="lineInterpolationSplineCurve">Show spline curve</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="lineInterpolationControlPoints">
+                                    <label class="form-check-label" for="lineInterpolationControlPoints">Show control points</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="lineInterpolationSamplePoints">
+                                    <label class="form-check-label" for="lineInterpolationSamplePoints">Show sample points</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Traversal speed</label>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="lineInterpolationTraversalSpeed" id="lineInterpolationTraversalSpeed1" value="0.5" checked="checked">
+                                            <label class="form-check-label" for="lineInterpolationTraversalSpeed1">0.5</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="lineInterpolationTraversalSpeed" id="lineInterpolationTraversalSpeed2" value="1">
+                                            <label class="form-check-label" for="lineInterpolationTraversalSpeed2">1</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="lineInterpolationTraversalSpeed" id="lineInterpolationTraversalSpeed3" value="2">
+                                            <label class="form-check-label" for="lineInterpolationTraversalSpeed3">2</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3>Motion Blur</h3>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="motionBlurTechnique" id="motionBlurPostProcess" value="POST_PROCESS" checked="checked">
+                                    <label class="form-check-label" for="motionBlurPostProcess">Post-process</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="motionBlurTechnique" id="motionBlurSupersampling" value="SUPERSAMPLING">
+                                    <label class="form-check-label" for="motionBlurStochastic">Supersampling</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
