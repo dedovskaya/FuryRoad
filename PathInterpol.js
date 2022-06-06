@@ -6,12 +6,9 @@ class PathInterpol {
         interpolatedPoints: [],
         lines: [],
     };
-    #currentPointIndex = 0;
-    #currentDistance = 0;
 
     #previousPoint = new PIXI.Point(0, 0);
-
-    #cdistance = 0;
+    #currentDistance = 0;
 
     constructor(points, gameObject, precision) {
         if (points.length < 4) {
@@ -117,14 +114,14 @@ class PathInterpol {
     });
 
     #animate = ((delta) => {
-        this.#cdistance += (this.speed * delta) / this.points.length;
-        while (this.#cdistance > this.points.length) {
-            this.#cdistance -= this.points.length;
+        this.#currentDistance += (this.speed * (delta / app.ticker.speed)) / this.points.length;
+        while (this.#currentDistance > this.points.length) {
+            this.#currentDistance -= this.points.length;
         }
 
         let fromIndex = 0;
         for (var i = 0; i < this.#arcLengths.length; i++) {
-            if (this.#arcLengths[i].arcLength > this.#cdistance) {
+            if (this.#arcLengths[i].arcLength > this.#currentDistance) {
                 fromIndex = i - 1;
                 if (fromIndex < 0) {
                     fromIndex = this.#arcLengths.length - 1;
@@ -140,7 +137,7 @@ class PathInterpol {
 
         let parametricValue = 0;
         if (this.#arcLengths[nextIndex].arcLength != 0) {
-            let currentArcLength = this.#cdistance - this.#arcLengths[fromIndex].arcLength;
+            let currentArcLength = this.#currentDistance - this.#arcLengths[fromIndex].arcLength;
             let arcLength = this.#arcLengths[nextIndex].arcLength - this.#arcLengths[fromIndex].arcLength;
 
             let parametricValueDifference = this.#arcLengths[nextIndex].parametricValue - this.#arcLengths[fromIndex].parametricValue;
@@ -162,6 +159,9 @@ class PathInterpol {
         // Rotate the gameObject
         if (p.x != this.#previousPoint.x && p.y != this.#previousPoint.y) {
             let rotation = Math.atan2(p.y - this.#previousPoint.y, p.x - this.#previousPoint.x);
+            if (rotation < 0) {
+                rotation += 2 * Math.PI;
+            }
             this.gameObject.rotation = rotation;
         }
 
