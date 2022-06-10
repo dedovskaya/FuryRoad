@@ -117,7 +117,6 @@ class PathInterpol {
 
     #animate = ((delta) => {
         this.#currentDistance += (this.speed * (delta / app.ticker.speed)) / this.points.length;
-        // this.#currentDistance = this.#ease(this.#currentDistance, 1, 3.5);
         while (this.#currentDistance > this.points.length) {
             this.#currentDistance -= this.points.length;
         }

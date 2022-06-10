@@ -78,7 +78,7 @@ class MotionBlur {
 
     #animate = (() => {
         if (this.technique == "POST_PROCESS") {
-            // Motion blur filter ("post-process")
+            // Post-process
             this.#blurObjects.forEach((blurObject) => {
                 app.stage.removeChild(blurObject);
             });
