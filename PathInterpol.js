@@ -10,13 +10,15 @@ class PathInterpol {
     #previousPoint = new PIXI.Point(0, 0);
     #currentDistance = 0;
 
-    constructor(points, gameObject, precision) {
+    constructor(points, gameObject, precision, k1, k2) {
         if (points.length < 4) {
             throw new Error("The points array must contain at least 4 points");
         }
 
         this.points = points;
         this.gameObject = gameObject;
+        this.k1 = k1;
+        this.k2 = k2;
 
         this.#interpolate(precision);
     }
@@ -115,13 +117,17 @@ class PathInterpol {
 
     #animate = ((delta) => {
         this.#currentDistance += (this.speed * (delta / app.ticker.speed)) / this.points.length;
+        // this.#currentDistance = this.#ease(this.#currentDistance, 1, 3.5);
         while (this.#currentDistance > this.points.length) {
             this.#currentDistance -= this.points.length;
         }
 
+        let maximumDistance = this.#ease(1, this.k1, this.k2);
+        let actualDistance = (this.#ease(this.#currentDistance / this.points.length, this.k1, this.k2) / maximumDistance) * this.points.length;
+
         let fromIndex = 0;
         for (var i = 0; i < this.#arcLengths.length; i++) {
-            if (this.#arcLengths[i].arcLength > this.#currentDistance) {
+            if (this.#arcLengths[i].arcLength > actualDistance) {
                 fromIndex = i - 1;
                 if (fromIndex < 0) {
                     fromIndex = this.#arcLengths.length - 1;
@@ -137,7 +143,7 @@ class PathInterpol {
 
         let parametricValue = 0;
         if (this.#arcLengths[nextIndex].arcLength != 0) {
-            let currentArcLength = this.#currentDistance - this.#arcLengths[fromIndex].arcLength;
+            let currentArcLength = actualDistance - this.#arcLengths[fromIndex].arcLength;
             let arcLength = this.#arcLengths[nextIndex].arcLength - this.#arcLengths[fromIndex].arcLength;
 
             let parametricValueDifference = this.#arcLengths[nextIndex].parametricValue - this.#arcLengths[fromIndex].parametricValue;
@@ -179,6 +185,21 @@ class PathInterpol {
 
     stopAnimation = (() => {
         app.ticker.remove(this.#animate);
+    });
+
+    #ease = ((t, k1, k2) => {
+        let f = k1 * ((2 / Math.PI) + k2 - k1 + (1 - k2) * (2 / Math.PI));
+        let s = 0;
+        if (t <= k1) {
+            s = (k1 * (2 / Math.PI) * (Math.sin((t / k1) * (Math.PI / 2) - (Math.PI / 2)) + 1)) / f;
+        }
+        else if (t <= k2) {
+            s = (k1 / (Math.PI / 2) + t - k1) / f;
+        }
+        else {
+            s = (k1 / (Math.PI / 2) + k2 - k1 + ((1 - k2) * (2 / Math.PI)) * Math.sin(((t - k2) / (1 - k2)) * (Math.PI / 2))) / f;
+        }
+        return s;
     });
 
     showPoints = ((show) => {

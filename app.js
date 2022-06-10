@@ -153,14 +153,23 @@ function collisionVector(obj1, obj2) {
 
 // Path interpolation
 const points = [new PIXI.Point(100, 100), new PIXI.Point(1000, 100), new PIXI.Point(1400, 600), new PIXI.Point(1200, 900), new PIXI.Point(700, 600)];
-let interpolation = new PathInterpol(points, enemy2.sprite, 0.05);
+let interpolation = new PathInterpol(points, enemy2.sprite, 0.05, 0.15, 0.5);
 interpolation.startAnimation(0.5);
+
 
 // Motion blur
 let motionBlur = new MotionBlur(enemy2.sprite, 32, "POST_PROCESS");
 
 
 // Settings
+app.ticker.minFPS = 30;
+
+document.querySelectorAll('input[name="frameRate"]').forEach(element => {
+    element.addEventListener('change', ((e) => {
+        app.ticker.maxFPS = parseInt(e.currentTarget.value);
+    }));
+});
+
 document.querySelectorAll('input[name="updateRate"]').forEach(element => {
     element.addEventListener('change', ((e) => {
         app.ticker.speed = parseFloat(e.currentTarget.value);
@@ -207,34 +216,3 @@ document.querySelectorAll('input[name="motionBlurTechnique"]').forEach(element =
         motionBlur.technique = e.currentTarget.value;
     }));
 });
-
-
-// var extract = app.renderer.plugins.extract;
-// var canvas = extract.canvas();
-// const context = canvas.getContext("2d");
-// var rgba = context.getImageData(20, 20, 1, 1).data;
-
-// console.log(enemy2.sprite.texture);
-
-// const getPixel = ((pixels, x, y) => {
-//     let width = app.renderer.width;
-//     let start = 4 * width * y + 4 * x;
-//     return pixels.slice(start, start + 4);
-// });
-
-// let velocities = [];
-// for (var i = 0; i < app.renderer.height; i++) {
-//     velocities.push([]);
-//     for (var j = 0; j < app.renderer.width; j++) {
-//         velocities[i].push()
-//     }
-// }
-
-// pixels = app.renderer.extract.pixels(app.stage);
-// setTimeout(() => {
-    
-//     // console.log(rgba);
-//     pixels = app.renderer.extract.pixels(app.stage);
-//     console.log(pixels);
-
-// }, 250);
