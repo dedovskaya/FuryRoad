@@ -52,19 +52,17 @@ class MotionBlur {
             int numSamples = 0;
             vec4 temporaryColor = color;
             for (int i = 0; i < MAX_NUM_SAMPLES - 1; i++) {
-                if (float(i) > abs(uLimit)) {
+                if (float(i) > uLimit) {
                     break;
                 }
 
                 numSamples++;
                 
-                vec2 distance = float(i) * (velocity / uLimit);
+                vec2 distance = float(i) * velocity / uLimit;
                 temporaryColor += texture2D(uSampler, vTextureCoord + distance);
             }
 
             temporaryColor /= float(numSamples);
-            // temporaryColor.a = color.a;
-
             gl_FragColor = temporaryColor;
         }
         `;
@@ -80,7 +78,7 @@ class MotionBlur {
 
     #animate = (() => {
         if (this.technique == "POST_PROCESS") {
-            // Motion blur filter ("post-process")
+            // Post-process
             this.#blurObjects.forEach((blurObject) => {
                 app.stage.removeChild(blurObject);
             });
@@ -92,7 +90,7 @@ class MotionBlur {
             var dy = this.gameObject.y - this.#y0;
 
             this.#motionBlurUniforms.uVelocity = new PIXI.Point(dx, dy);
-            this.#motionBlurUniforms.uLimit = Math.max(dx, dy);
+            this.#motionBlurUniforms.uLimit = Math.max(Math.abs(dx), Math.abs(dy));
         }
         else if (this.technique == "SUPERSAMPLING") {
             // Supersampling
@@ -139,15 +137,5 @@ class MotionBlur {
         this.#x0 = this.gameObject.x;
         this.#y0 = this.gameObject.y;
         this.#rotation = this.gameObject.rotation;
-    });
-
-    #getPixel = ((x, y) => {
-        let pixels = app.renderer.extract.pixels(this.gameObject);
-
-        let width = app.renderer.width;
-        let height = app.renderer.height;
-
-        let i = 4 * width * y + 4 * x;
-        return pixels.slice(i, i + 4);
     });
 }
