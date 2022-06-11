@@ -7,10 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fury Road</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono&display=swap');
+
         * {
             box-sizing: border-box;
             padding: 0;
             margin: 0;
+        }
+
+        body {
             font-family: 'Inter', sans-serif;
         }
 
@@ -29,6 +34,18 @@
             height: 720px;
             display: block;
             margin: 0 auto;
+        }
+
+        .time-overlay {
+            position: absolute;
+            width: auto;
+            height: auto;
+            right: 1rem;
+            top: 0.5rem;
+            color: #fff;
+            font-size: 24px;
+            font-family: 'Noto Sans Mono', monospace;
+            z-index: 1;
         }
 
         .overlay {
@@ -50,6 +67,9 @@
 <body>
     <div class="game-container">
         <div class="game" id="game">
+            <div class="time-overlay">
+                <span id="elapsedTime"></span>
+            </div>
             <div class="overlay collapse" id="settingsOverlay">
                 <div class="container">
                     <h2>Settings</h2>
@@ -179,6 +199,7 @@
     <script src="./node_modules/@pixi/filter-motion-blur/dist/filter-motion-blur.js"></script>
     <script src="./Car.js"></script>
     <script src="./InputReader.js"></script>
+    <script src="./RigidBody.js"></script>
     <script src="./PathInterpol.js"></script>
     <script src="./MotionBlur.js"></script>
     <script src="./app.js"></script>

@@ -53,8 +53,17 @@ app.stage.addChild(BackgroundSprite);
 BackgroundSprite.width = app.renderer.width;
 BackgroundSprite.height = app.renderer.height;
 
-let player = new Car("./images/car1.png", 1.0, 1.0, 1.0, 10);
-player.spawn(1100,700);
+document.addEventListener('click', (e => {
+    console.log(e);
+}))
+
+// let player = new Car("./images/car1.png", 1.0, 1.0, 1.0, 10);
+// player.spawn(1100,700);
+
+let player = new RigidBody("./images/car1.png", 1.0, 1.0, 1.0, 10);
+player.sprite.scale.set(0.125, 0.125);
+player.sprite.rotation = Math.PI / 2;
+player.spawn(1052, 351);
 
 //  Input reader for player
 input = new InputReader(player);
@@ -72,15 +81,20 @@ let enemy4 = new Car("./images/car2.png", 1.0, 1.0, 1.0, 10);
 // enemy4.spawn(1500,400);
 
 
+let passedPoints = [false, false, false, false, false];
+
 //  Animation loop
 const acceleration = 0.2;
-const friction = 0.99;
+const friction = 0.95;
+
+let time = 0;
 
 app.ticker.add(delta => loop(delta));
 function loop(delta) {
+    time += app.ticker.elapsedMS;
 
-    for (var i = 0; i < Car.allCars.length; i++) {
-        Car.allCars[i].update(delta);
+    for (var i = 0; i < RigidBody.allRigidBodies.length; i++) {
+        RigidBody.allRigidBodies[i].update(delta);
     }
 
     player.vel_x += delta * acceleration * input.forward *  Math.cos(player.sprite.rotation);
@@ -88,14 +102,40 @@ function loop(delta) {
 
     let sign = Math.sign(Math.sin(player.sprite.rotation) * player.vel_y + Math.cos(player.sprite.rotation) * player.vel_x);
 
-    player.ang_vel += sign * delta * input.rightDown * 0.0002 * player.getAbsoluteVelocity();
+    player.ang_vel += sign * delta * input.rightDown * 0.0005 * player.getAbsoluteVelocity();
     
-    for (var i = 0; i < Car.allCars.length-1; i++) {
-        for (var j = i+1; j < Car.allCars.length; j++) {
-                if (rectsIntersect(Car.allCars[i].sprite, Car.allCars[j].sprite)){
-                    collisionVector(Car.allCars[i], Car.allCars[j]);
-                }
+    for (var i = 0; i < RigidBody.allRigidBodies.length-1; i++) {
+        for (var j = i+1; j < RigidBody.allRigidBodies.length; j++) {
+            if (rectsIntersect(RigidBody.allRigidBodies[i].sprite, RigidBody.allRigidBodies[j].sprite)) {
+                collisionVector(RigidBody.allRigidBodies[i], RigidBody.allRigidBodies[j]);
+            }
         }
+    }
+
+    let minutes = parseInt(time / 60000);
+    let seconds = parseInt((time - (minutes * 60000)) / 1000);
+    let centiseconds = parseInt((time - (seconds * 1000)) / 10);
+    let displayTime = minutes + ":" + (seconds < 10 ? "0" + seconds : seconds) + ":" + (centiseconds < 10 ? "0" + centiseconds : centiseconds);
+    document.querySelector('#elapsedTime').innerText = displayTime;
+
+    if (player.sprite.x < 842 && player.sprite.y > 578) {
+        passedPoints[0] = true;
+    }
+    if (passedPoints[0] && player.sprite.x < 202 && player.sprite.y > 570) {
+        passedPoints[1] = true;
+    }
+    if (passedPoints[0] && passedPoints[1] && player.sprite.x < 219 && player.sprite.y < 127) {
+        passedPoints[2] = true;
+    }
+    if (passedPoints[0] && passedPoints[1] && passedPoints[2] && player.sprite.x > 956 && player.sprite.y > 162) {
+        passedPoints[3] = true;
+    }
+    if (passedPoints[0] && passedPoints[1] && passedPoints[2] && passedPoints[3] && player.sprite.x > 1023 && player.sprite.y > 306) {
+        passedPoints[4] = true;
+    }
+    if (passedPoints.every(x => x)) {
+        console.log("VICTORY");
+        app.ticker.stop();
     }
 };
 
@@ -143,13 +183,6 @@ function collisionVector(obj1, obj2) {
     obj1.ang_vel -= deltaJ/obj1.inertia_moment;
     obj2.ang_vel += deltaJ/obj2.inertia_moment;
 }
-
-// Filters
-// let vShader;
-// let fShader;
-// let uniforms;
-// const filter = new PIXI.Filter(vShader, fShader, uniforms);
-
 
 // Path interpolation
 // Railway line 1
