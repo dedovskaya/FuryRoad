@@ -8,7 +8,7 @@ const app = new Application({
     antialias: true
 });
 app.renderer.backgroundColor = 0x23395D;
-app.renderer.resize(1680, 1024);
+app.renderer.resize(1280, 720);
 app.renderer.view.style.position = "absolute";
 app.renderer.view.style.top = 0;
 document.querySelector("#game").appendChild(app.view);
@@ -18,7 +18,7 @@ const Graphics = PIXI.Graphics;
 // Loader
 let loader = PIXI.Loader.shared;
 
-loader.add("road", "./images/road.png")
+loader.add("road", "./images/background-main.png")
 .add("car1", "./images/car1.png")
 .add("car2", "./images/car2.png")
 // .on("progress", handleLoadProgress)
@@ -47,11 +47,11 @@ function handleLoadComplete(){
     // app.stage.addChild(img);
 }
 // Background road
-const url2 = "./images/road.png"
+const url2 = "./images/background-main.png"
 const BackgroundSprite = new PIXI.Sprite.from(url2);
 app.stage.addChild(BackgroundSprite);
-BackgroundSprite.width = window.innerWidth;
-BackgroundSprite.height = window.innerHeight;
+BackgroundSprite.width = app.renderer.width;
+BackgroundSprite.height = app.renderer.height;
 
 let player = new Car("./images/car1.png", 1.0, 1.0, 1.0, 10);
 player.spawn(1100,700);
@@ -60,16 +60,16 @@ player.spawn(1100,700);
 input = new InputReader(player);
 
 let enemy = new Car("./images/car2.png", 1.0, 1.0, 1.0, 10);
-enemy.spawn(500,600);
+// enemy.spawn(500,600);
 
 let enemy2 = new Car("./images/train.png", 1000.0, 1.0, 1.0, 10);
-enemy2.spawn(0,0);
+// enemy2.spawn(0,0);
 
 let enemy3 = new Car("./images/bus-stop.png", 1000.0, .01, 1.0, 10);
-enemy3.spawn(1500,200);
+// enemy3.spawn(1500,200);
 
 let enemy4 = new Car("./images/car2.png", 1.0, 1.0, 1.0, 10);
-enemy4.spawn(1500,400);
+// enemy4.spawn(1500,400);
 
 
 //  Animation loop
@@ -152,13 +152,30 @@ function collisionVector(obj1, obj2) {
 
 
 // Path interpolation
-const points = [new PIXI.Point(100, 100), new PIXI.Point(1000, 100), new PIXI.Point(1400, 600), new PIXI.Point(1200, 900), new PIXI.Point(700, 600)];
-let interpolation = new PathInterpol(points, enemy2.sprite, 0.05, 0.15, 0.5);
-interpolation.startAnimation(0.5);
+// Railway line 1
+let train1 = new PIXI.Sprite.from("./images/train.png");
+train1.scale.set(0.25, 0.25);
+train1.anchor.set(0.5, 0.5);
+app.stage.addChild(train1);
+
+const points1 = [new PIXI.Point(574, 474), new PIXI.Point(459, 486), new PIXI.Point(370, 462), new PIXI.Point(250, 376), new PIXI.Point(189, 289), new PIXI.Point(178, 223), new PIXI.Point(206, 161), new PIXI.Point(263, 110), new PIXI.Point(369, 69), new PIXI.Point(508, 54), new PIXI.Point(593, 114), new PIXI.Point(631, 229), new PIXI.Point(608, 390)];
+let interpolation1 = new PathInterpol(points1, train1, 0.05, 0.15, 0.5);
+interpolation1.startAnimation(0.5);
+
+// Railway line 2
+let train2 = new PIXI.Sprite.from("./images/train.png");
+train2.scale.set(0.25, 0.25);
+train2.anchor.set(0.5, 0.5);
+app.stage.addChild(train2);
+
+const points2 = [new PIXI.Point(1009, 514), new PIXI.Point(1105, 573), new PIXI.Point(1079, 688), new PIXI.Point(969, 855), new PIXI.Point(840, 842), new PIXI.Point(730, 750), new PIXI.Point(674, 708), new PIXI.Point(664, 651), new PIXI.Point(678, 570), new PIXI.Point(721, 522), new PIXI.Point(856, 484)];
+let interpolation2 = new PathInterpol(points2, train2, 0.05, 0.15, 0.5);
+interpolation2.startAnimation(0.5);
 
 
 // Motion blur
-let motionBlur = new MotionBlur(enemy2.sprite, 32, "POST_PROCESS");
+let motionBlur1 = new MotionBlur(train1, 32, "POST_PROCESS");
+let motionBlur2 = new MotionBlur(train2, 32, "POST_PROCESS");
 
 
 // Settings
@@ -179,40 +196,48 @@ document.querySelectorAll('input[name="updateRate"]').forEach(element => {
 // Line interpolation
 document.querySelector('#lineInterpolationSplineCurve').addEventListener('change', ((e) => {
     if (e.currentTarget.checked) {
-        interpolation.showLine(true);
+        interpolation1.showLine(true);
+        interpolation2.showLine(true);
     }
     else {
-        interpolation.showLine(false);
+        interpolation1.showLine(false);
+        interpolation2.showLine(false);
     }
 }));
 
 document.querySelector('#lineInterpolationControlPoints').addEventListener('change', ((e) => {
     if (e.currentTarget.checked) {
-        interpolation.showPoints(true);
+        interpolation1.showPoints(true);
+        interpolation2.showPoints(true);
     }
     else {
-        interpolation.showPoints(false);
+        interpolation1.showPoints(false);
+        interpolation2.showPoints(false);
     }
 }));
 
 document.querySelector('#lineInterpolationSamplePoints').addEventListener('change', ((e) => {
     if (e.currentTarget.checked) {
-        interpolation.showInterpolatedPoints(true);
+        interpolation1.showInterpolatedPoints(true);
+        interpolation2.showInterpolatedPoints(true);
     }
     else {
-        interpolation.showInterpolatedPoints(false);
+        interpolation1.showInterpolatedPoints(false);
+        interpolation2.showInterpolatedPoints(false);
     }
 }));
 
 document.querySelectorAll('input[name="lineInterpolationTraversalSpeed"]').forEach(element => {
     element.addEventListener('change', ((e) => {
-        interpolation.speed = parseFloat(e.currentTarget.value);
+        interpolation1.speed = parseFloat(e.currentTarget.value);
+        interpolation2.speed = parseFloat(e.currentTarget.value);
     }));
 });
 
 // Motion blur
 document.querySelectorAll('input[name="motionBlurTechnique"]').forEach(element => {
     element.addEventListener('change', ((e) => {
-        motionBlur.technique = e.currentTarget.value;
+        motionBlur1.technique = e.currentTarget.value;
+        motionBlur2.technique = e.currentTarget.value;
     }));
 });

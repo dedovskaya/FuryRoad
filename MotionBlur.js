@@ -49,7 +49,7 @@ class MotionBlur {
             vec4 color = texture2D(uSampler, vTextureCoord);
             vec2 velocity = uVelocity / filterArea.xy;
 
-            int numSamples = 0;
+            int numSamples = 1;
             vec4 temporaryColor = color;
             for (int i = 0; i < MAX_NUM_SAMPLES - 1; i++) {
                 if (float(i) > uLimit) {
@@ -121,7 +121,7 @@ class MotionBlur {
                 blurObject.scale = this.gameObject.scale;
                 blurObject.anchor = this.gameObject.anchor;
                 blurObject.rotation = rotation;
-                blurObject.alpha = 2 / this.#numberOfSamples;
+                blurObject.alpha = 3 / this.#numberOfSamples;
 
                 this.#blurObjects.push(blurObject);
                 app.stage.addChild(blurObject);
@@ -131,7 +131,7 @@ class MotionBlur {
                 rotation += dr / this.#numberOfSamples;
             }
 
-            this.gameObject.alpha = 2 / this.#numberOfSamples;
+            this.gameObject.alpha = 3 / this.#numberOfSamples;
         }
         
         this.#x0 = this.gameObject.x;
