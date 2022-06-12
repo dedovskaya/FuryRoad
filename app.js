@@ -61,25 +61,23 @@ stone.spawn(840, 590);
 
 // ########################################################################################################################
 //  Voronoi
-let player_width = 269; //539 initial size
-let player_height = 96; // 192 initial size
+let player_width = 67; //539 initial size
+let player_height = 24; // 192 initial size
 
 // Add voronoi container 
-let voronoiContainer = new PIXI.Container();
-voronoiContainer.position.set(300,500);
-
+var voronoiContainer = new PIXI.Container();
 voronoiContainer.pivot.x = player_width/2;
 voronoiContainer.pivot.y = player_height/2;
+// Generate initial seed points
+var seed_points = SeedPoints(4, voronoiContainer);
 
-app.stage.addChild(voronoiContainer);
-
-var seed_points;
+// Count collisions for voronoi
+var collision_count = 0;
 var mask_sectors;
 var edges;
 
-function voronoiFraction(container, num_points){
-    // Generate seed points
-    seed_points = SeedPoints(num_points, container);
+function voronoiFracture(container, seed_points){
+
 
     // Mask array with all sectors
     mask_sectors = [...Array(player_width)].map(e => Array(player_height).fill(0));
@@ -98,15 +96,40 @@ function voronoiFraction(container, num_points){
 
 }
 
-voronoiFraction(voronoiContainer, 5);
+voronoiFracture(voronoiContainer, seed_points);
 
+// 2d stage of voronoi
+var new_seed_points_2 = SeedPoints(3, voronoiContainer);
+
+seed_points.push(new_seed_points_2[0]);
+seed_points.push(new_seed_points_2[1]);
+seed_points.push(new_seed_points_2[2]);
+
+var voronoiContainer2 = new PIXI.Container();
+voronoiContainer2.pivot.x = player_width/2;
+voronoiContainer2.pivot.y = player_height/2;
+voronoiFracture(voronoiContainer2, seed_points);
+
+// 3d stage of voronoi
+var new_seed_points_3 = SeedPoints(3, voronoiContainer);
+
+seed_points.push(new_seed_points_3[0]);
+seed_points.push(new_seed_points_3[1]);
+seed_points.push(new_seed_points_3[2]);
+
+var voronoiContainer3 = new PIXI.Container();
+voronoiContainer3.pivot.x = player_width/2;
+voronoiContainer3.pivot.y = player_height/2;
+voronoiFracture(voronoiContainer3, seed_points);
 
 // ########################################################################################################################
 // Main animation loop
 const acceleration = 0.2;
-
 let time = 0;
 let passedPoints = [false, false, false, false, false, false];
+
+
+
 
 function loop(delta) {
     // Player control
@@ -125,6 +148,29 @@ function loop(delta) {
     let centiseconds = parseInt((time - (minutes * 60000) - (seconds * 1000)) / 10);
     let displayTime = minutes + ":" + (seconds < 10 ? "0" + seconds : seconds) + ":" + (centiseconds < 10 ? "0" + centiseconds : centiseconds);
     document.querySelector('#elapsedTime').innerText = displayTime;
+
+    // Voronoi container
+    voronoiContainer.position.set(player.sprite.x,player.sprite.y);
+    voronoiContainer.rotation = player.sprite.rotation;
+
+    voronoiContainer2.position.set(player.sprite.x,player.sprite.y);
+    voronoiContainer2.rotation = player.sprite.rotation;
+
+    voronoiContainer3.position.set(player.sprite.x,player.sprite.y);
+    voronoiContainer3.rotation = player.sprite.rotation;
+    //  Display voronoi container if collided N times
+    if (collision_count > 100 && collision_count < 1000){
+        app.stage.addChild(voronoiContainer);
+    };
+    if (collision_count > 1000 && collision_count < 1500){
+        app.stage.removeChild(voronoiContainer);
+        app.stage.addChild(voronoiContainer2);
+    };
+    if (collision_count > 1500 && collision_count < 2000){
+        app.stage.removeChild(voronoiContainer2);
+        app.stage.addChild(voronoiContainer3);
+        
+    };
 
     // Lap logic
     if (player.sprite.x < 842 && player.sprite.y > 578) {

@@ -141,7 +141,7 @@ function drawSeedPoints(seed_points, container){
     for (let i = 0; i < seed_points.length; i++){
     
         p = new PIXI.Graphics();
-        p.beginFill(0x00FF00).drawCircle(seed_points[i][0], seed_points[i][1], 10).endFill();
+        p.beginFill(0x00FF00).drawCircle(seed_points[i][0], seed_points[i][1], 1).endFill();
         // app.stage.addChild(p);
         container.addChild(p);
         };
@@ -153,7 +153,7 @@ function displayEdges(edges, container){
         for (let j = 0; j < getDimensions(edges)[1]; j++){
             if (edges[i][j] == 1){
                     let point_edge = new PIXI.Graphics();
-                    point_edge.beginFill(000030).drawCircle(i, j, 2).endFill();
+                    point_edge.beginFill(000000).drawCircle(i, j, 1).endFill();
                     // app.stage.addChild(point_edge);
                     container.addChild(point_edge);
                     
