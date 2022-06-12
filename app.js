@@ -45,7 +45,7 @@ let building = new RigidBody("./images/structure-1.png", 500000, 1, 1, 1);
 building.sprite.scale.set(0.15, 0.15);
 building.spawn(949, 179);
 
-let barrel = new RigidBody("./images/barrel.png", 0.5, 10, 10, 10);
+let barrel = new RigidBody("./images/barrel.png", 0.5, 10, 10, 100);
 barrel.sprite.scale.set(0.0625, 0.0625);
 barrel.sprite.rotation = -Math.PI / 4;
 barrel.spawn(436, 703);
@@ -146,6 +146,10 @@ function loop(delta) {
         passedPoints[5] = true;
     }
     if (passedPoints.every(x => x)) {
+        document.querySelector('#endOverlay').classList.add('show');
+        document.querySelector('#endTitle').innerText = 'VICTORY';
+        document.querySelector('#endTime').innerText = displayTime;
+        
         app.ticker.stop();
     }
 };

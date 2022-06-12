@@ -49,7 +49,7 @@ class RigidBody {
         if (this.showLine) {
             this.line_v = new Graphics;
             this.line_v.lineStyle(5, 0xFFEA00, 1).moveTo(this.sprite.x, this.sprite.y)
-                .lineTo(this.sprite.x + 50*this.vel_x, this.sprite.y + 50*this.vel_y);
+                .lineTo(this.sprite.x + 100*this.vel_x, this.sprite.y + 100*this.vel_y);
             app.stage.addChild(this.line_v)
         }
     }
