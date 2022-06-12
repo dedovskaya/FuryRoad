@@ -1,4 +1,8 @@
 class RigidBody {
+    showLine = false;
+
+    friction = 0.95;
+
     constructor (url, mass, max_torque, max_force, max_velocity) {
         this.sprite = new PIXI.Sprite.from(url);
         this.sprite.scale.set(0.5, 0.5);
@@ -12,6 +16,8 @@ class RigidBody {
         this.max_velocity = max_velocity;
         this.line_v = new Graphics();
         this.inertia_moment = this.mass * 100000.0
+
+        app.ticker.add(this.animate);
     }
     
     // List of all RigidBody type elements
@@ -35,20 +41,79 @@ class RigidBody {
         }
         this.sprite.rotation += this.ang_vel * delta; 
 
-        this.vel_x = friction * this.vel_x;
-        this.vel_y = friction * this.vel_y;
-        this.ang_vel = friction * this.ang_vel;
+        this.vel_x = this.friction * this.vel_x;
+        this.vel_y = this.friction * this.vel_y;
+        this.ang_vel = this.friction * this.ang_vel;
     
         app.stage.removeChild(this.line_v)
-        this.line_v = new Graphics;
-        this.line_v.lineStyle(5, 0xFFEA00, 1).moveTo(this.sprite.x, this.sprite.y)
-            .lineTo(this.sprite.x + 50*this.vel_x, this.sprite.y + 50*this.vel_y);
-        app.stage.addChild(this.line_v)
-        
-       
+        if (this.showLine) {
+            this.line_v = new Graphics;
+            this.line_v.lineStyle(5, 0xFFEA00, 1).moveTo(this.sprite.x, this.sprite.y)
+                .lineTo(this.sprite.x + 50*this.vel_x, this.sprite.y + 50*this.vel_y);
+            app.stage.addChild(this.line_v)
+        }
     }
 
     getAbsoluteVelocity() {
         return Math.sqrt(this.vel_x * this.vel_x + this.vel_y * this.vel_y)
+    }
+
+    animate(delta) {
+        for (var i = 0; i < RigidBody.allRigidBodies.length; i++) {
+            RigidBody.allRigidBodies[i].update(delta);
+        }
+        
+        for (var i = 0; i < RigidBody.allRigidBodies.length-1; i++) {
+            for (var j = i+1; j < RigidBody.allRigidBodies.length; j++) {
+                if (RigidBody.allRigidBodies[i].rectsIntersect(RigidBody.allRigidBodies[i].sprite, RigidBody.allRigidBodies[j].sprite)) {
+                    RigidBody.allRigidBodies[i].collisionVector(RigidBody.allRigidBodies[i], RigidBody.allRigidBodies[j]);
+                }
+            }
+        }
+    }
+
+    // Simple intersection check
+    rectsIntersect(a, b) {
+        let ab = a.getBounds(); // Returns the framing rectangle of the circle as a Rectangle object
+        let bb = b.getBounds();
+
+        return ab.x + ab.width > bb.x &&
+            ab.x < bb.x + bb.width &&
+            ab.y + ab.height > bb.y &&
+            ab.y < bb.y + bb.height;
+    }
+
+    // Collision interaction with impulse ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    collisionVector(obj1, obj2) {
+        let vCollision = {x: obj2.sprite.x - obj1.sprite.x, y: obj2.sprite.y - obj1.sprite.y};
+        
+        let distance = Math.sqrt((obj2.sprite.x-obj1.sprite.x)*(obj2.sprite.x-obj1.sprite.x) + (obj2.sprite.y-obj1.sprite.y)*(obj2.sprite.y-obj1.sprite.y));
+
+        let vCollisionNorm = {x: vCollision.x / distance, y: vCollision.y / distance};
+
+        let vRelativeVelocity = {x: obj1.vel_x - obj2.vel_x, y: obj1.vel_y - obj2.vel_y};
+        
+        // Impulse moment
+        let speed = vRelativeVelocity.x * vCollisionNorm.x + vRelativeVelocity.y * vCollisionNorm.y;
+        
+        if (speed < 0){
+            return;
+        }
+
+        let impulse = 2 * speed / (obj1.mass + obj2.mass);
+        obj1.vel_x -= (impulse * obj2.mass * vCollisionNorm.x);
+        obj1.vel_y -= (impulse * obj2.mass * vCollisionNorm.y);
+        obj2.vel_x += (impulse * obj1.mass * vCollisionNorm.x);
+        obj2.vel_y += (impulse * obj1.mass * vCollisionNorm.y);
+        
+        
+        // Inertia, angular momentum, angular velocity
+        let perpendicularSpeed = vRelativeVelocity.x * vCollisionNorm.y - vRelativeVelocity.y * vCollisionNorm.x;
+        let perpendicularDeltaP = 2*perpendicularSpeed*(1/obj1.mass + 1/obj2.mass)
+
+        let deltaJ = 2*(obj2.ang_vel-obj1.ang_vel)/(1/obj1.inertia_moment + 1/obj2.inertia_moment);
+        deltaJ += perpendicularDeltaP*distance;
+        obj1.ang_vel -= deltaJ/obj1.inertia_moment;
+        obj2.ang_vel += deltaJ/obj2.inertia_moment;
     }
 }

@@ -7,16 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fury Road</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono&display=swap');
 
         * {
             box-sizing: border-box;
             padding: 0;
             margin: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
         }
 
         .game-container {
@@ -34,6 +31,7 @@
             height: 720px;
             display: block;
             margin: 0 auto;
+            font-family: 'Inter', sans-serif;
         }
 
         .time-overlay {
@@ -166,6 +164,19 @@
                                             <label class="form-check-label" for="lineInterpolationTraversalSpeed3">2</label>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3>Rigid Body Dynamics</h3>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="rigidBodyMomentumVectors">
+                                    <label class="form-check-label" for="rigidBodyMomentumVectors">Show momentum vectors</label>
                                 </div>
                             </div>
                         </div>
