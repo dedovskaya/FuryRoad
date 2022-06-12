@@ -58,6 +58,13 @@ let stone = new RigidBody("./images/structure-2.png", 500, 1, 1, 1);
 stone.sprite.scale.set(0.125, 0.125);
 stone.spawn(840, 590);
 
+let police1 = new RigidBody("./images/car2.png", 1, 1, 1, 1);
+police1.sprite.scale.set(0.165, 0.165);
+police1.spawn(70, 571);
+
+let police2 = new RigidBody("./images/car2.png", 1, 1, 1, 1);
+police2.sprite.scale.set(0.165, 0.165);
+police2.spawn(70, 521);
 
 // ########################################################################################################################
 //  Voronoi
@@ -130,9 +137,6 @@ voronoiContainer3.pivot.y = player_height/2;
 let seed_points_3 = [...seed_points];
 voronoiFracture(voronoiContainer3, seed_points);
 var mask_sectors_3 = mask_sectors;
-
-
-
 
 // ########################################################################################################################
 // Main animation loop

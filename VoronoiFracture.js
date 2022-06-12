@@ -1,16 +1,4 @@
 
-
-// You should compute the Voronoi cells „based on a true pixel/grid-based distance field, which must be additionally noised“, as stated in the specs.
-// The idea is to simply realize the algorithm from the lecture in 2D, based on the pixel grid that represent your asset images.
-
-// That is, for each pixel find the boundary edge between the closest seed points, 
-// assign a signed distance value, and add some Smooth (Perlin) noise (in some interval around zero). 
-// The sign of the resulting value determines which seed (or cell) the pixel belongs to. 
-// This can then be used to extract the pixels constituting a fragment as an individual image.
-
-
-
-
 // Generate random number in range (min, max)
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
@@ -77,7 +65,7 @@ function getDimensions(array){
     return dimensions;
 }
 
-// Draw voronoi cell
+// Create a mask of sectors
 function drawVoronoiCell(seed_point, seed_points, color){
     for (let i = 0; i < player_width; i++) {
         for (let j = 0; j < player_height; j++){
@@ -175,3 +163,4 @@ function drawAllVoronoiCells(mask_sectors, current_container){
         }
     }
 }
+
