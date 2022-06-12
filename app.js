@@ -64,12 +64,16 @@ stone.spawn(840, 590);
 let player_width = 67; //539 initial size
 let player_height = 24; // 192 initial size
 
+
 // Add voronoi container 
 var voronoiContainer = new PIXI.Container();
 voronoiContainer.pivot.x = player_width/2;
 voronoiContainer.pivot.y = player_height/2;
+
+var current_container = voronoiContainer;
 // Generate initial seed points
 var seed_points = SeedPoints(4, voronoiContainer);
+
 
 // Count collisions for voronoi
 var collision_count = 0;
@@ -97,6 +101,7 @@ function voronoiFracture(container, seed_points){
 }
 
 voronoiFracture(voronoiContainer, seed_points);
+var mask_sectors_1 = mask_sectors;
 
 // 2d stage of voronoi
 var new_seed_points_2 = SeedPoints(3, voronoiContainer);
@@ -109,6 +114,7 @@ var voronoiContainer2 = new PIXI.Container();
 voronoiContainer2.pivot.x = player_width/2;
 voronoiContainer2.pivot.y = player_height/2;
 voronoiFracture(voronoiContainer2, seed_points);
+var mask_sectors_2 = mask_sectors;
 
 // 3d stage of voronoi
 var new_seed_points_3 = SeedPoints(3, voronoiContainer);
@@ -121,14 +127,16 @@ var voronoiContainer3 = new PIXI.Container();
 voronoiContainer3.pivot.x = player_width/2;
 voronoiContainer3.pivot.y = player_height/2;
 voronoiFracture(voronoiContainer3, seed_points);
+var mask_sectors_3 = mask_sectors;
+
+
+
 
 // ########################################################################################################################
 // Main animation loop
 const acceleration = 0.2;
 let time = 0;
 let passedPoints = [false, false, false, false, false, false];
-
-
 
 
 function loop(delta) {
@@ -161,14 +169,20 @@ function loop(delta) {
     //  Display voronoi container if collided N times
     if (collision_count > 100 && collision_count < 1000){
         app.stage.addChild(voronoiContainer);
+        current_container = voronoiContainer;
+        mask_sectors = mask_sectors_1;
     };
     if (collision_count > 1000 && collision_count < 1500){
         app.stage.removeChild(voronoiContainer);
         app.stage.addChild(voronoiContainer2);
+        current_container = voronoiContainer2;
+        mask_sectors = mask_sectors_2;
     };
     if (collision_count > 1500 && collision_count < 2000){
         app.stage.removeChild(voronoiContainer2);
         app.stage.addChild(voronoiContainer3);
+        current_container = voronoiContainer3;
+        mask_sectors = mask_sectors_3;
         
     };
 

@@ -153,7 +153,7 @@ function displayEdges(edges, container){
         for (let j = 0; j < getDimensions(edges)[1]; j++){
             if (edges[i][j] == 1){
                     let point_edge = new PIXI.Graphics();
-                    point_edge.beginFill(000000).drawCircle(i, j, 1).endFill();
+                    point_edge.beginFill(000030).drawCircle(i, j, 1).endFill();
                     // app.stage.addChild(point_edge);
                     container.addChild(point_edge);
                     
@@ -162,3 +162,16 @@ function displayEdges(edges, container){
     }
 }
 
+function drawAllVoronoiCells(mask_sectors, current_container){
+    for (let i = 0; i < getDimensions(mask_sectors)[0]; i++){
+        for (let j = 0; j < getDimensions(mask_sectors)[1]; j++){
+            for (let p = 0; p<seed_points.length; p++){
+                if (mask_sectors[i][j] == p) {
+                let sector_point = new PIXI.Graphics();
+                sector_point.beginFill(p*100000).drawCircle(i, j, 2).endFill();
+                current_container.addChild(sector_point);
+                }   
+            }
+        }
+    }
+}
