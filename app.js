@@ -15,37 +15,6 @@ document.querySelector("#game").appendChild(app.view);
 
 const Graphics = PIXI.Graphics;
 
-// Loader
-let loader = PIXI.Loader.shared;
-
-loader.add("road", "./images/background-main.png")
-.add("car1", "./images/car1.png")
-.add("car2", "./images/car2.png")
-// .on("progress", handleLoadProgress)
-// .on("load", handleLoadAsset)
-// .load(handleLoadComplete);
-
-let img;
-
-function handleLoadProgress(loader, resourse) {
-    console.log(loader.progress + "% loaded");
-}
-
-function handleLoadAsset(loader, resourse) {
-    console.log("asset loaded" + resourse.name);
-}
-
-function handlerLoadError() {
-    console.error("load error")
-}
-
-function handleLoadComplete(){
-    let texture = loader.resourses.car2.texture;
-    img = new PIXI.Sprite(texture);
-    img.anchor.x = 0.5;
-    img.anchor.y = 0.5;
-    // app.stage.addChild(img);
-}
 // Background road
 const url2 = "./images/background-main.png"
 const BackgroundSprite = new PIXI.Sprite.from(url2);
@@ -88,6 +57,50 @@ const acceleration = 0.2;
 const friction = 0.95;
 
 let time = 0;
+// ########################################################################################################################
+//  Voronoi
+let player_width = 269; //539 initial size
+let player_height = 96; // 192 initial size
+
+// Add voronoi container 
+let voronoiContainer = new PIXI.Container();
+voronoiContainer.position.set(300,500);
+
+voronoiContainer.pivot.x = player_width/2;
+voronoiContainer.pivot.y = player_height/2;
+
+app.stage.addChild(voronoiContainer);
+
+var seed_points;
+var mask_sectors;
+var edges;
+
+function voronoiFraction(container, num_points){
+    // Generate seed points
+    seed_points = SeedPoints(num_points, container);
+
+    // Mask array with all sectors
+    mask_sectors = [...Array(player_width)].map(e => Array(player_height).fill(0));
+
+    // Create an array-mask representing sectors
+    mask_sectors = createMaskSectors(seed_points);
+
+    // Create Edge Array
+    edges = createEdgeArray(mask_sectors);
+
+    // Display points
+    drawSeedPoints(seed_points, container);
+
+    // Display edges
+    displayEdges(edges, container);
+
+}
+
+voronoiFraction(voronoiContainer, 5);
+
+
+// ########################################################################################################################
+
 
 app.ticker.add(delta => loop(delta));
 function loop(delta) {
@@ -149,8 +162,8 @@ function rectsIntersect(a, b) {
            ab.y + ab.height > bb.y &&
            ab.y < bb.y + bb.height;
 }
-
-// Collision interaction with impulse ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ########################################################################################################################
+// Collision interaction with impulse 
 function collisionVector(obj1, obj2) {
     let vCollision = {x: obj2.sprite.x - obj1.sprite.x, y: obj2.sprite.y - obj1.sprite.y};
     
@@ -205,21 +218,12 @@ const points2 = [new PIXI.Point(1009, 514), new PIXI.Point(1105, 573), new PIXI.
 let interpolation2 = new PathInterpol(points2, train2, 0.05, 0.15, 0.5);
 interpolation2.startAnimation(0.5);
 
-
 // Motion blur
 let motionBlur1 = new MotionBlur(train1, 32, "POST_PROCESS");
 let motionBlur2 = new MotionBlur(train2, 32, "POST_PROCESS");
 
 
 // Settings
-app.ticker.minFPS = 30;
-
-document.querySelectorAll('input[name="frameRate"]').forEach(element => {
-    element.addEventListener('change', ((e) => {
-        app.ticker.maxFPS = parseInt(e.currentTarget.value);
-    }));
-});
-
 document.querySelectorAll('input[name="updateRate"]').forEach(element => {
     element.addEventListener('change', ((e) => {
         app.ticker.speed = parseFloat(e.currentTarget.value);
@@ -274,3 +278,34 @@ document.querySelectorAll('input[name="motionBlurTechnique"]').forEach(element =
         motionBlur2.technique = e.currentTarget.value;
     }));
 });
+
+
+// var extract = app.renderer.plugins.extract;
+// var canvas = extract.canvas();
+// const context = canvas.getContext("2d");
+// var rgba = context.getImageData(20, 20, 1, 1).data;
+
+// console.log(enemy2.sprite.texture);
+
+// const getPixel = ((pixels, x, y) => {
+//     let width = app.renderer.width;
+//     let start = 4 * width * y + 4 * x;
+//     return pixels.slice(start, start + 4);
+// });
+
+// let velocities = [];
+// for (var i = 0; i < app.renderer.height; i++) {
+//     velocities.push([]);
+//     for (var j = 0; j < app.renderer.width; j++) {
+//         velocities[i].push()
+//     }
+// }
+
+// pixels = app.renderer.extract.pixels(app.stage);
+// setTimeout(() => {
+    
+//     // console.log(rgba);
+//     pixels = app.renderer.extract.pixels(app.stage);
+//     console.log(pixels);
+
+// }, 250);

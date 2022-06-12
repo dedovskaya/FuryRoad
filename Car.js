@@ -21,12 +21,10 @@ class Car {
     static max_rotation_speed = 0.1;
 
     spawn(x, y) {
-        console.log(this.sprite.position);
         app.stage.addChild(this.sprite);
         this.sprite.x = x;
         this.sprite.y = y;
         (Car.allCars).push(this)
-        console.log(Car.allCars)
     }
 
     update(delta) {
