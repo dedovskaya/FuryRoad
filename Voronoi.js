@@ -153,7 +153,7 @@ function displayEdges(edges, container){
         for (let j = 0; j < getDimensions(edges)[1]; j++){
             if (edges[i][j] == 1){
                     let point_edge = new PIXI.Graphics();
-                    point_edge.beginFill(000030).drawCircle(i, j, 1).endFill();
+                    point_edge.beginFill(0x261300).drawCircle(i, j, 1).endFill();
                     // app.stage.addChild(point_edge);
                     container.addChild(point_edge);
                     

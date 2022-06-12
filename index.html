@@ -51,7 +51,7 @@
             width: 100%;
             height: 100%;
             padding: 1rem 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.75);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -60,10 +60,21 @@
             visibility: hidden;
             opacity: 0;
             z-index: 1;
+            transition: all 1500ms ease;
+        }
+
+        .end-overlay h2 {
+            visibility: hidden;
+            opacity: 0;
             transition: all 500ms ease;
         }
 
         .end-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .end-overlay h2.show {
             visibility: visible;
             opacity: 1;
         }
@@ -73,7 +84,7 @@
             width: 100%;
             height: 100%;
             padding: 1rem 0;
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.75);
             z-index: 1;
         }
     </style>
@@ -142,6 +153,12 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="updateRateSpeed">
+                                    <label class="form-check-label" for="updateRateSpeed">Link animation update rate and animation speed</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -204,6 +221,10 @@
                                     <input class="form-check-input" type="checkbox" role="switch" id="rigidBodyMomentumVectors">
                                     <label class="form-check-label" for="rigidBodyMomentumVectors">Show momentum vectors</label>
                                 </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="rigidBodyCollisionPoints">
+                                    <label class="form-check-label" for="rigidBodyCollisionPoints">Show collision points</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -220,6 +241,23 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="motionBlurTechnique" id="motionBlurSupersampling" value="SUPERSAMPLING">
                                     <label class="form-check-label" for="motionBlurStochastic">Supersampling</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3>Voronoi Fracture</h3>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="voronoiFractureSeedPoints">
+                                    <label class="form-check-label" for="voronoiFractureSeedPoints">Show seed points</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="voronoiFractureCellDistanceFields">
+                                    <label class="form-check-label" for="voronoiFractureCellDistanceFields">Show cell distance fields</label>
                                 </div>
                             </div>
                         </div>

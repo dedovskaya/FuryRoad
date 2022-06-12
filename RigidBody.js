@@ -1,6 +1,6 @@
 class RigidBody {
     showLine = false;
-    showCollisionPoint = true;
+    showCollisionPoint = false;
     friction = 0.95;
 
     constructor (url, mass, max_torque, max_force, max_velocity) {
@@ -33,6 +33,10 @@ class RigidBody {
     }
 
     update(delta) {
+        if (divideDelta) {
+            delta = delta / app.ticker.speed;
+        }
+
         this.sprite.x += this.vel_x * delta;
         this.sprite.y += this.vel_y * delta;
         if  (this.ang_vel < -RigidBody.max_rotation_speed){
@@ -40,7 +44,7 @@ class RigidBody {
         } else if (this.ang_vel > RigidBody.max_rotation_speed){
             this.ang_vel = +RigidBody.max_rotation_speed;
         }
-        this.sprite.rotation += this.ang_vel * delta; 
+        this.sprite.rotation += this.ang_vel * delta;
 
         this.vel_x = this.friction * this.vel_x;
         this.vel_y = this.friction * this.vel_y;
@@ -74,10 +78,10 @@ class RigidBody {
                     if (RigidBody.allRigidBodies[i] == RigidBody.allRigidBodies[0]){
                         collision_count += 1;
                     }
-                    console.log(this.showCollisionPoint);
-                    if (this.showCollisionPoint){
+                    
+                    if (RigidBody.allRigidBodies[i].showCollisionPoint || RigidBody.allRigidBodies[j].showCollisionPoint) {
                         this.collision_p = new Graphics;
-                        this.collision_p.beginFill(0x000000).drawCircle((RigidBody.allRigidBodies[i].sprite.x + RigidBody.allRigidBodies[j].sprite.x)/2, (RigidBody.allRigidBodies[i].sprite.y + RigidBody.allRigidBodies[j].sprite.y)/2, 20).endFill();
+                        this.collision_p.beginFill(0x000000).drawCircle((RigidBody.allRigidBodies[i].sprite.x + RigidBody.allRigidBodies[j].sprite.x)/2, (RigidBody.allRigidBodies[i].sprite.y + RigidBody.allRigidBodies[j].sprite.y)/2, 10).endFill();
                         console.log((RigidBody.allRigidBodies[i].sprite.x + RigidBody.allRigidBodies[j].sprite.x)/2, RigidBody.allRigidBodies[i].sprite.y + RigidBody.allRigidBodies[j].sprite.y )
                         app.stage.addChild(this.collision_p);
                     }

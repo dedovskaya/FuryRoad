@@ -80,9 +80,10 @@ var collision_count = 0;
 var mask_sectors;
 var edges;
 
+let showSeedPoints = false;
+let showCellDistanceFields = false;
+
 function voronoiFracture(container, seed_points){
-
-
     // Mask array with all sectors
     mask_sectors = [...Array(player_width)].map(e => Array(player_height).fill(0));
 
@@ -92,14 +93,11 @@ function voronoiFracture(container, seed_points){
     // Create Edge Array
     edges = createEdgeArray(mask_sectors);
 
-    // Display points
-    drawSeedPoints(seed_points, container);
-
     // Display edges
     displayEdges(edges, container);
-
 }
 
+let seed_points_1 = [...seed_points];
 voronoiFracture(voronoiContainer, seed_points);
 var mask_sectors_1 = mask_sectors;
 
@@ -113,6 +111,8 @@ seed_points.push(new_seed_points_2[2]);
 var voronoiContainer2 = new PIXI.Container();
 voronoiContainer2.pivot.x = player_width/2;
 voronoiContainer2.pivot.y = player_height/2;
+
+let seed_points_2 = [...seed_points];
 voronoiFracture(voronoiContainer2, seed_points);
 var mask_sectors_2 = mask_sectors;
 
@@ -126,6 +126,8 @@ seed_points.push(new_seed_points_3[2]);
 var voronoiContainer3 = new PIXI.Container();
 voronoiContainer3.pivot.x = player_width/2;
 voronoiContainer3.pivot.y = player_height/2;
+
+let seed_points_3 = [...seed_points];
 voronoiFracture(voronoiContainer3, seed_points);
 var mask_sectors_3 = mask_sectors;
 
@@ -140,6 +142,10 @@ let passedPoints = [false, false, false, false, false, false];
 
 
 function loop(delta) {
+    if (divideDelta) {
+        delta = delta / app.ticker.speed;
+    }
+
     // Player control
     player.vel_x += delta * acceleration * input.forward *  Math.cos(player.sprite.rotation);
     player.vel_y += delta * acceleration * input.forward *  Math.sin(player.sprite.rotation);
@@ -166,25 +172,64 @@ function loop(delta) {
 
     voronoiContainer3.position.set(player.sprite.x,player.sprite.y);
     voronoiContainer3.rotation = player.sprite.rotation;
+
     //  Display voronoi container if collided N times
-    if (collision_count > 100 && collision_count < 1000){
+    if (collision_count > 250 && collision_count < 500) {
         app.stage.addChild(voronoiContainer);
         current_container = voronoiContainer;
         mask_sectors = mask_sectors_1;
-    };
-    if (collision_count > 1000 && collision_count < 1500){
+
+        // Display points
+        if (showSeedPoints) {
+            drawSeedPoints(seed_points_1, current_container);
+        }
+
+        if (showCellDistanceFields) {
+            drawAllVoronoiCells(mask_sectors, current_container);
+        }
+    }
+    if (collision_count > 500 && collision_count < 750) {
         app.stage.removeChild(voronoiContainer);
         app.stage.addChild(voronoiContainer2);
         current_container = voronoiContainer2;
         mask_sectors = mask_sectors_2;
-    };
-    if (collision_count > 1500 && collision_count < 2000){
+
+        // Display points
+        if (showSeedPoints) {
+            drawSeedPoints(seed_points_2, current_container);
+        }
+
+        if (showCellDistanceFields) {
+            drawAllVoronoiCells(mask_sectors, current_container);
+        }
+    }
+    if (collision_count > 750) {
         app.stage.removeChild(voronoiContainer2);
         app.stage.addChild(voronoiContainer3);
         current_container = voronoiContainer3;
         mask_sectors = mask_sectors_3;
         
-    };
+        // Display points
+        if (showSeedPoints) {
+            drawSeedPoints(seed_points_3, current_container);
+        }
+
+        if (showCellDistanceFields) {
+            drawAllVoronoiCells(mask_sectors, current_container);
+        }
+    }
+    if (collision_count > 1000) {
+        // Game over
+        document.querySelector('#endOverlay').addEventListener('transitionend', ((e) => {
+            document.querySelector('#endTime').classList.add('show');
+        }));
+
+        document.querySelector('#endOverlay').classList.add('show');
+        document.querySelector('#endTitle').innerText = 'FAILURE';
+        document.querySelector('#endTime').innerText = 'Your car is destroyed.';
+        
+        app.ticker.stop();
+    }
 
     // Lap logic
     if (player.sprite.x < 842 && player.sprite.y > 578) {
@@ -202,18 +247,47 @@ function loop(delta) {
     if (passedPoints[0] && passedPoints[1] && passedPoints[2] && passedPoints[3] && player.sprite.x > 956 && player.sprite.y > 162) {
         passedPoints[4] = true;
     }
-    if (passedPoints[0] && passedPoints[1] && passedPoints[2] && passedPoints[3] && passedPoints[4] && player.sprite.x > 1023 && player.sprite.y > 306) {
+    if (passedPoints[0] && passedPoints[1] && passedPoints[2] && passedPoints[3] && passedPoints[4] && player.sprite.x > 1023 && player.sprite.y > 306 && player.sprite.x < 1085 && player.sprite.y < 350) {
         passedPoints[5] = true;
     }
     if (passedPoints.every(x => x)) {
+        document.querySelector('#endOverlay').addEventListener('transitionend', ((e) => {
+            document.querySelector('#endTime').classList.add('show');
+        }));
+
         document.querySelector('#endOverlay').classList.add('show');
         document.querySelector('#endTitle').innerText = 'VICTORY';
         document.querySelector('#endTime').innerText = displayTime;
         
         app.ticker.stop();
     }
-};
+
+    // Train intersection logic
+    if (rectsIntersect(player.sprite, train1) || rectsIntersect(player.sprite, train2)) {
+        document.querySelector('#endOverlay').addEventListener('transitionend', ((e) => {
+            document.querySelector('#endTime').classList.add('show');
+        }));
+
+        document.querySelector('#endOverlay').classList.add('show');
+        document.querySelector('#endTitle').innerText = 'FAILURE';
+        document.querySelector('#endTime').innerText = 'You have crashed.';
+        
+        app.ticker.stop();
+    }
+}
 app.ticker.add(delta => loop(delta));
+
+// Same as in RigidBody
+// Used for detecting collisions with trains, as trains are not rigid bodies
+function rectsIntersect(a, b) {
+    let ab = a.getBounds();
+    let bb = b.getBounds();
+
+    return ab.x + ab.width > bb.x &&
+        ab.x < bb.x + bb.width &&
+        ab.y + ab.height > bb.y &&
+        ab.y < bb.y + bb.height;
+}
 
 
 // Path interpolation
@@ -243,11 +317,29 @@ let motionBlur2 = new MotionBlur(train2, 32, "POST_PROCESS");
 
 
 // Settings
+app.ticker.minFPS = 10;
+let divideDelta = true;
+
 document.querySelectorAll('input[name="updateRate"]').forEach(element => {
     element.addEventListener('change', ((e) => {
         app.ticker.speed = parseFloat(e.currentTarget.value);
     }));
 });
+
+document.querySelectorAll('input[name="frameRate"]').forEach(element => {
+    element.addEventListener('change', ((e) => {
+        app.ticker.maxFPS = parseInt(e.currentTarget.value);
+    }));
+});
+
+document.querySelector('#updateRateSpeed').addEventListener('change', ((e) => {
+    if (e.currentTarget.checked) {
+        divideDelta = false;
+    }
+    else {
+        divideDelta = true;
+    }
+}));
 
 // Line interpolation
 document.querySelector('#lineInterpolationSplineCurve').addEventListener('change', ((e) => {
@@ -304,6 +396,19 @@ document.querySelector('#rigidBodyMomentumVectors').addEventListener('change', (
     }
 }));
 
+document.querySelector('#rigidBodyCollisionPoints').addEventListener('change', ((e) => {
+    if (e.currentTarget.checked) {
+        RigidBody.allRigidBodies.forEach(element => {
+            element.showCollisionPoint = true;
+        });
+    }
+    else {
+        RigidBody.allRigidBodies.forEach(element => {
+            element.showCollisionPoint = false;
+        });
+    }
+}));
+
 // Motion blur
 document.querySelectorAll('input[name="motionBlurTechnique"]').forEach(element => {
     element.addEventListener('change', ((e) => {
@@ -311,3 +416,22 @@ document.querySelectorAll('input[name="motionBlurTechnique"]').forEach(element =
         motionBlur2.technique = e.currentTarget.value;
     }));
 });
+
+// Voronoi fracture
+document.querySelector('#voronoiFractureSeedPoints').addEventListener('change', ((e) => {
+    if (e.currentTarget.checked) {
+        showSeedPoints = true;
+    }
+    else {
+        showSeedPoints = false;
+    }
+}));
+
+document.querySelector('#voronoiFractureCellDistanceFields').addEventListener('change', ((e) => {
+    if (e.currentTarget.checked) {
+        showCellDistanceFields = true;
+    }
+    else {
+        showCellDistanceFields = false;
+    }
+}));
