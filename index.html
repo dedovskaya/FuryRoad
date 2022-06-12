@@ -1,99 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fury Road</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono&display=swap');
-
-        * {
-            box-sizing: border-box;
-            padding: 0;
-            margin: 0;
-        }
-
-        .game-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .game {
-            position: relative;
-            width: 1280px;
-            height: 720px;
-            display: block;
-            margin: 0 auto;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .time-overlay {
-            position: absolute;
-            width: auto;
-            height: auto;
-            right: 1rem;
-            top: 0.5rem;
-            color: #fff;
-            font-size: 24px;
-            font-family: 'Noto Sans Mono', monospace;
-            z-index: 1;
-        }
-
-        .end-overlay {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            padding: 1rem 0;
-            background-color: rgba(0, 0, 0, 0.75);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            color: #fff;
-            visibility: hidden;
-            opacity: 0;
-            z-index: 1;
-            transition: all 1500ms ease;
-        }
-
-        .end-overlay h2 {
-            visibility: hidden;
-            opacity: 0;
-            transition: all 500ms ease;
-        }
-
-        .end-overlay.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .end-overlay h2.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .overlay {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            padding: 1rem 0;
-            background-color: rgba(255, 255, 255, 0.75);
-            z-index: 1;
-        }
-    </style>
 
     <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css" type ="text/css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style/style.css" type ="text/css">
 </head>
 <body>
     <div class="game-container">
@@ -270,14 +184,11 @@
     <script src="./node_modules/pixi.js/dist/browser/pixi.min.js"></script>
     <script src="./node_modules/@pixi/ticker/dist/browser/ticker.min.js"></script>
     <script src="./node_modules/@pixi/graphics-extras/dist/browser/graphics-extras.min.js"></script>
-    <script src="./node_modules/pixi-filters/dist/pixi-filters.js"></script>
-    <script src="./node_modules/@pixi/filter-motion-blur/dist/filter-motion-blur.js"></script>
-    <script src="./Car.js"></script>
     <script src="./InputReader.js"></script>
     <script src="./RigidBody.js"></script>
     <script src="./PathInterpol.js"></script>
     <script src="./MotionBlur.js"></script>
-    <script src="./Voronoi.js"></script>
+    <script src="./VoronoiFracture.js"></script>
     <script src="./app.js"></script>
 </body>
 </html>
